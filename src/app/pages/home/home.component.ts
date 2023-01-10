@@ -21,7 +21,7 @@ export class HomeComponent implements OnInit {
     private storageService: StorageService,
     private router: Router,
     private route: ActivatedRoute,
-    private zone: NgZone
+    private zone: NgZone,
   ) {
     route.paramMap.subscribe((params) => {
       if (params.has('id') && !this.roomId) this.roomId = params.get('id')!;

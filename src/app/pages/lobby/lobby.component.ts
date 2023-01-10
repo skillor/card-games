@@ -1,6 +1,7 @@
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, NgZone, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { combineLatest } from 'rxjs';
+import { GamesService } from 'src/app/shared/games/games.service';
 import { RoomService } from 'src/app/shared/room/room.service';
 import { RoomState } from 'src/app/shared/room/room.state';
 import { User } from 'src/app/shared/room/user';
@@ -16,9 +17,11 @@ export class LobbyComponent implements OnInit {
 
   constructor(
     private roomService: RoomService,
+    private gamesService: GamesService,
     private router: Router,
     private route: ActivatedRoute,
     private changeDetector: ChangeDetectorRef,
+    private zone: NgZone,
   ) {
   }
 
@@ -26,12 +29,16 @@ export class LobbyComponent implements OnInit {
     combineLatest([this.roomService.roomState, this.route.paramMap]).subscribe(([roomState, params]) => {
       const roomId = params.get('id');
       if (roomState === undefined) {
-        this.router.navigate(['join', roomId]);
+        this.zone.run(() => this.router.navigate(['join', roomId]));
         return;
       }
       this.roomState = roomState;
       this.changeDetector.detectChanges();
     });
+  }
+
+  isHost(): boolean {
+    return this.roomService.isHost;
   }
 
   getUsers(): User[] {

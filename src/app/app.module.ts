@@ -8,21 +8,27 @@ import { HomeComponent } from './pages/home/home.component';
 import { RoomService } from './shared/room/room.service';
 import { LobbyComponent } from './pages/lobby/lobby.component';
 import { StorageService } from './shared/storage/storage.service';
+import { PlayComponent } from './pages/play/play.component';
+import { GamesService } from './shared/games/games.service';
+import { HttpClientModule } from '@angular/common/http';
 
 @NgModule({
   declarations: [
     AppComponent,
     HomeComponent,
-    LobbyComponent
+    LobbyComponent,
+    PlayComponent
   ],
   imports: [
     BrowserModule,
     AppRoutingModule,
     FormsModule,
+    HttpClientModule,
   ],
   providers: [
     RoomService,
     StorageService,
+    GamesService,
   ],
   bootstrap: [AppComponent]
 })
