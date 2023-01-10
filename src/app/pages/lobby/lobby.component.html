@@ -1,1 +1,2 @@
-<p>lobby works!</p>
+<p *ngFor="let user of getUsers()">Name:{{user.name}} Ping:{{user.ping}}ms</p>
+<button class="btn btn-primary" (click)="leave()">Leave</button>

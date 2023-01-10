@@ -54,9 +54,9 @@ export class HomeComponent implements OnInit {
         this.errorMessage = err.message;
         throw err;
       }),
-    ).subscribe(() => {
+    ).subscribe((roomId) => {
       this.loading = false;
-      this.zone.run(() => this.router.navigate(['lobby', this.roomService.roomId]));
+      this.zone.run(() => this.router.navigate(['lobby', roomId]));
     });
   }
 }
