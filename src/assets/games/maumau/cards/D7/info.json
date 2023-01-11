@@ -1,5 +1,7 @@
 {
   "name": "Seven of Diamonds",
-  "type_1": "7",
-  "type_2": "D"
+  "types": {
+    "face": "D",
+    "type": "7"
+  }
 }

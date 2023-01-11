@@ -1,5 +1,7 @@
 {
   "name": "Queen of Hearts",
-  "type_1": "Q",
-  "type_2": "H"
+  "types": {
+    "face": "H",
+    "type": "Q"
+  }
 }

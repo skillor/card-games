@@ -1,4 +1,14 @@
 {
   "name": "Mau Mau",
-  "startCards": "6"
+  "globalStacks": {
+    "draw": {"visibility": "stack-hidden"}
+  },
+  "playerStacks": {
+    "hand": {"visibility": "me"}
+  },
+  "variables": {
+    "players": 3,
+    "startHandCards": 6
+  },
+  "gameStart": "game.populate(stacks.draw, 1); game.shuffle(stacks.draw); players.forEach((player) => game.draw(stacks.draw, player.stacks.hand, +variables.startHandCards))"
 }

@@ -1,0 +1,6 @@
+<ng-container [ngSwitch]="cardStack?.type?.visibility">
+  <ng-container *ngSwitchCase="'stack-hidden'">
+    <app-card [card]="cardStack?.cards?.at(-1)" [back]="true"></app-card>
+  </ng-container>
+  <ng-container *ngSwitchDefault>Visible</ng-container>
+</ng-container>

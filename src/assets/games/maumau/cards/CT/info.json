@@ -1,5 +1,7 @@
 {
   "name": "Ten of Clubs",
-  "type_1": "T",
-  "type_2": "C"
+  "types": {
+    "face": "C",
+    "type": "T"
+  }
 }

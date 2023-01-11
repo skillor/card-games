@@ -1,5 +1,7 @@
 {
   "name": "Ace of Diamonds",
-  "type_1": "A",
-  "type_2": "D"
+  "types": {
+    "face": "D",
+    "type": "A"
+  }
 }

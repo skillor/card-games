@@ -1,5 +1,7 @@
 {
   "name": "Jack of Hearts",
-  "type_1": "J",
-  "type_2": "H"
+  "types": {
+    "face": "H",
+    "type": "J"
+  }
 }

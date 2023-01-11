@@ -1,5 +1,7 @@
 {
   "name": "Queen of Spades",
-  "type_1": "Q",
-  "type_2": "S"
+  "types": {
+    "face": "S",
+    "type": "Q"
+  }
 }

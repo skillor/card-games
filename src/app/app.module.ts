@@ -11,13 +11,21 @@ import { StorageService } from './shared/storage/storage.service';
 import { PlayComponent } from './pages/play/play.component';
 import { GamesService } from './shared/games/games.service';
 import { HttpClientModule } from '@angular/common/http';
+import { CardComponent } from './components/card/card.component';
+import { DebugComponent } from './pages/debug/debug.component';
+import { CardStackComponent } from './components/card-stack/card-stack.component';
+import { PlaygroundComponent } from './components/playground/playground.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     HomeComponent,
     LobbyComponent,
-    PlayComponent
+    PlayComponent,
+    CardComponent,
+    DebugComponent,
+    CardStackComponent,
+    PlaygroundComponent
   ],
   imports: [
     BrowserModule,

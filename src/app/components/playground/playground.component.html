@@ -1,0 +1,4 @@
+<div *ngIf="gameState; else loading">
+  <app-card-stack *ngFor="let cardStack of getGlobalStacks()" [cardStack]="cardStack"></app-card-stack>
+</div>
+<ng-template #loading>Loading...</ng-template>

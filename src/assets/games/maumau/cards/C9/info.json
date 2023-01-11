@@ -1,5 +1,7 @@
 {
   "name": "Nine of Clubs",
-  "type_1": "9",
-  "type_2": "C"
+  "types": {
+    "face": "C",
+    "type": "9"
+  }
 }

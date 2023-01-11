@@ -1,5 +1,7 @@
 {
   "name": "Ten of Spades",
-  "type_1": "T",
-  "type_2": "S"
+  "types": {
+    "face": "S",
+    "type": "T"
+  }
 }

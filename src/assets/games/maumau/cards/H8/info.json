@@ -1,5 +1,7 @@
 {
   "name": "Eight of Hearts",
-  "type_1": "8",
-  "type_2": "H"
+  "types": {
+    "face": "H",
+    "type": "8"
+  }
 }

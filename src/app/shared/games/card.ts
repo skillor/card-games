@@ -1,3 +1,5 @@
+import { CardType } from "./card-type";
+
 export interface Card {
-  image: MediaImage;
+  cardType: CardType;
 }
