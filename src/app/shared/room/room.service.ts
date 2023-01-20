@@ -9,6 +9,7 @@ import { RoomState } from './room.state';
 import { User } from './user';
 import { RoomState as RoomStatePacket } from '../packets/room-state.packet';
 import { Ping } from '../packets/ping.packet';
+import { GamesService } from '../games/games.service';
 
 @Injectable()
 export class RoomService {
@@ -22,14 +23,16 @@ export class RoomService {
   private pingInterval = 5000;
   private pingTimeout = 3000;
 
-  constructor() {
+  constructor(
+    private gamesService: GamesService,
+  ) {
     interval(this.pingInterval).subscribe(() => {
       this.pingConnections();
     })
   }
 
   sendWaitResponse(conn: DataConnection, packet: Packet): Observable<Packet> {
-    const hash = Math.random().toString(36).substring(2, 19);
+    const hash = Math.random().toString(36).substring(2);
     const subject = new Subject<Packet>();
     this.awaitingPackages[hash] = subject;
     packet.id = hash;
@@ -126,17 +129,26 @@ export class RoomService {
   }
 
   createRoom(username: string): Observable<string> {
-    this.peer = new Peer();
-    return fromEvent(this.peer, 'open').pipe(
-      first(),
-      map((id) => {
-        this.id = String(id);
-        this.me = {name: username, ping: 0};
-        this.roomState.next({users: {[this.id]: this.me}, id: this.id});
-        fromEvent(this.peer, 'connection').subscribe((conn) => this.setupHostConnection(<DataConnection>conn));
-        return this.id;
+    return this.gamesService.getGameTypes().pipe(
+      switchMap((gameTypes) => {
+        this.peer = new Peer();
+        return fromEvent(this.peer, 'open').pipe(
+          first(),
+          map((id) => {
+            this.id = String(id);
+            this.me = {name: username, ping: 0};
+            this.isHost = true;
+            this.roomState.next({
+              users: {[this.id]: this.me},
+              id: this.id,
+              selectedGame: gameTypes[Object.keys(gameTypes)[0]],
+            });
+            fromEvent(this.peer, 'connection').subscribe((conn) => this.setupHostConnection(<DataConnection>conn));
+            return this.id;
+          })
+        );
       })
-    );
+    )
   }
 
   joinRoom(username: string, roomId: string): Observable<string> {
@@ -165,5 +177,10 @@ export class RoomService {
         );
       }),
     );
+  }
+
+  setRoomState(roomState: RoomState): void {
+    this.roomState.next(roomState);
+    this.broadcast(new RoomStatePacket(roomState));
   }
 }

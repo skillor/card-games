@@ -1,7 +1,8 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, NgZone, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { combineLatest } from 'rxjs';
+import { combineLatest, first, Observable, switchMap } from 'rxjs';
 import { GamesService } from 'src/app/shared/games/games.service';
+import { GameType } from 'src/app/shared/games/game-type';
 import { RoomService } from 'src/app/shared/room/room.service';
 import { RoomState } from 'src/app/shared/room/room.state';
 import { User } from 'src/app/shared/room/user';
@@ -41,6 +42,10 @@ export class LobbyComponent implements OnInit {
     return this.roomService.isHost;
   }
 
+  getGameTypes(): Observable<{[id: string]: GameType}> {
+    return this.gamesService.getGameTypes();
+  }
+
   getUsers(): User[] {
     if (this.roomState === undefined) return [];
     return Object.values(this.roomState.users);
@@ -49,5 +54,14 @@ export class LobbyComponent implements OnInit {
   leave(): void {
     this.roomService.disconnect();
     this.router.navigate(['home']);
+  }
+
+  changeGameType(target: any): void {
+    if (!target || !target.value) return;
+    this.getGameTypes().subscribe((gameTypes) => {
+      if (this.roomState === undefined || !(target.value in gameTypes)) return;
+      this.roomState.selectedGame = gameTypes[target.value];
+      this.roomService.setRoomState(this.roomState);
+    });
   }
 }

@@ -1,4 +1,10 @@
-<div *ngIf="gameState; else loading">
-  <app-card-stack *ngFor="let cardStack of getGlobalStacks()" [cardStack]="cardStack"></app-card-stack>
+<div class="flex flex-col" *ngIf="gameState; else loading">
+  <div class="flex flex-row">
+    <app-card-stack class="flex w-fit" *ngFor="let cardStack of gameState.stacks | keyvalue" [cardStack]="cardStack.value"></app-card-stack>
+  </div>
+  <div class="flex flex-col" *ngFor="let playerKey of gameState.playerOrder">
+    {{playerKey}}
+    <app-card-stack class="flex w-fit" *ngFor="let cardStack of gameState.players[playerKey].stacks | keyvalue" [cardStack]="cardStack.value"></app-card-stack>
+  </div>
 </div>
 <ng-template #loading>Loading...</ng-template>

@@ -1,0 +1,14 @@
+{
+  "name": "Knack",
+  "globalStacks": {
+    "draw": {"visibility": "stack-hidden", "emptyImage": "gfx/empty.svg"},
+    "main": {"visibility": "stack", "emptyImage": "gfx/empty.svg"}
+  },
+  "playerStacks": {
+    "hand": {"visibility": "me"}
+  },
+  "variables": {
+    "players": 3,
+    "startHandCards": 3
+  }
+}

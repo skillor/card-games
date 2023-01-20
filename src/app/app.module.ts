@@ -15,6 +15,11 @@ import { CardComponent } from './components/card/card.component';
 import { DebugComponent } from './pages/debug/debug.component';
 import { CardStackComponent } from './components/card-stack/card-stack.component';
 import { PlaygroundComponent } from './components/playground/playground.component';
+import { CardImageComponent } from './components/card-image/card-image.component';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { AnimationService } from './shared/animation/animation.service';
+import { SettingsService } from './shared/settings/settings.service';
+import { SettingsComponent } from './components/settings/settings.component';
 
 @NgModule({
   declarations: [
@@ -25,18 +30,23 @@ import { PlaygroundComponent } from './components/playground/playground.componen
     CardComponent,
     DebugComponent,
     CardStackComponent,
-    PlaygroundComponent
+    PlaygroundComponent,
+    CardImageComponent,
+    SettingsComponent
   ],
   imports: [
     BrowserModule,
     AppRoutingModule,
     FormsModule,
     HttpClientModule,
+    BrowserAnimationsModule,
   ],
   providers: [
     RoomService,
     StorageService,
     GamesService,
+    AnimationService,
+    SettingsService,
   ],
   bootstrap: [AppComponent]
 })

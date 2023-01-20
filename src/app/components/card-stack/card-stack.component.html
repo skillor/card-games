@@ -1,6 +1,13 @@
-<ng-container [ngSwitch]="cardStack?.type?.visibility">
-  <ng-container *ngSwitchCase="'stack-hidden'">
-    <app-card [card]="cardStack?.cards?.at(-1)" [back]="true"></app-card>
-  </ng-container>
-  <ng-container *ngSwitchDefault>Visible</ng-container>
+<ng-container *ngIf="cardStack?.type?.visibility?.startsWith('stack')">
+  <div class="relative">
+    <div #element class="absolute" [style]="'top:'+(-(cardStack!.cards.length*2))+'px;left:0px;'"></div>
+    <app-card *ngFor="let card of cardStack?.cards; let i = index" [card]="card" [back]="isFlipped()" class="absolute" [style]="'top:'+(-(i*2))+'px;left:0px;'"></app-card>
+    <app-card-image *ngIf="getEmptyImage() as emptySrc" [src]="emptySrc"></app-card-image>
+  </div>
+</ng-container>
+<ng-container *ngIf="cardStack?.type?.visibility === 'me'">
+  <div class="flex flex-row flex-wrap">
+    <app-card *ngFor="let card of cardStack?.cards; let i = index" [card]="card" [back]="false"></app-card>
+    <div #element></div>
+  </div>
 </ng-container>

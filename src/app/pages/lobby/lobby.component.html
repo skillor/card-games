@@ -1,4 +1,4 @@
-<button class="btn btn-primary" (click)="leave()">Leave</button>
+<button class="btn btn-secondary" (click)="leave()">Leave</button>
 <ul *ngFor="let user of getUsers()">
   <li class="flex flex-row">
     {{user.name}}
@@ -6,3 +6,10 @@
     {{user.ping}}ms
   </li>
 </ul>
+<h1 *ngIf="!isHost()" class="text-lg font-bold">Game: {{roomState?.selectedGame?.name}}</h1>
+<div *ngIf="isHost()">
+  <select class="select select-bordered w-full max-w-xs" (change)="changeGameType($event.target)">
+    <option *ngFor="let gameType of getGameTypes() | async | keyvalue" [selected]="gameType.value.id === roomState?.selectedGame?.id" [value]="gameType.key">{{gameType.value.name}}</option>
+  </select>
+</div>
+<button class="btn btn-primary">Start</button>

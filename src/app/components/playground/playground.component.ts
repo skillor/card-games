@@ -1,3 +1,4 @@
+import { KeyValue } from '@angular/common';
 import { Component, Input, OnInit } from '@angular/core';
 import { CardStack } from 'src/app/shared/games/card-stack';
 import { GameState } from 'src/app/shared/games/game-state';
@@ -15,9 +16,5 @@ export class PlaygroundComponent implements OnInit {
   constructor() { }
 
   ngOnInit(): void {
-  }
-
-  getGlobalStacks(): CardStack[] {
-    return Object.values(this.gameState!.stacks);
   }
 }

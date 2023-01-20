@@ -1,3 +1,10 @@
-<div class="flex" *ngIf="src">
-  <img [src]="src" (error)="onError($event)">
+<div class="flip-box" style="height:140px;width:100px;">
+  <div class="flip-box-inner" #element>
+    <div class="flip-box-front">
+      <app-card-image [src]="frontSrc"></app-card-image>
+    </div>
+    <div class="flip-box-back">
+      <app-card-image [src]="backSrc"></app-card-image>
+    </div>
+  </div>
 </div>

@@ -13,5 +13,5 @@ export abstract class Packet {
       if (packetType.name === packet.type) return packetType.accept(v, packet);
     }
     throw new Error('got undefined packet: ' + packet.type)
-  };
+  }
 }
