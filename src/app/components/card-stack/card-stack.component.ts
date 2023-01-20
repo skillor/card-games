@@ -16,6 +16,9 @@ export class CardStackComponent implements Animatable, AfterViewInit, OnDestroy 
   @Input()
   cardStack?: CardStack;
 
+  @Input()
+  playerKey?: string;
+
   @ViewChild('element')
   private innerElementRef: ElementRef | undefined;
 
@@ -26,7 +29,8 @@ export class CardStackComponent implements Animatable, AfterViewInit, OnDestroy 
   ) { }
 
   isFlipped(): boolean {
-    return this.cardStack?.type.visibility === 'stack-hidden';
+    if (!this.cardStack) return true;
+    return this.cardStack.type.visibility.endsWith('hidden') || (this.playerKey !== undefined && this.cardStack.type.visibility.endsWith('me') && !this.gamesService.getMeVisibility(this.playerKey));
   }
 
   isReady(): boolean {

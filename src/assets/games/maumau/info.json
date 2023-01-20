@@ -5,7 +5,7 @@
     "main": {"visibility": "stack", "emptyImage": "gfx/empty.svg"}
   },
   "playerStacks": {
-    "hand": {"visibility": "me"}
+    "hand": {"visibility": "hand-me"}
   },
   "variables": {
     "startHandCards": {"value": 6},

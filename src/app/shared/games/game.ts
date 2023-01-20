@@ -255,7 +255,10 @@ export class Game {
 
   choose(player: Observable<Player>, options: Observable<GameOption[]>, onEmpty: Observable<GameOption> = of({text: 'Pass', action: of(false)})): Observable<any> {
     return combineLatest([player, options]).pipe(switchMap(([player, options]) => {
-      return this.controllers[player.id].choose(this.gameState!, this.nextGameStates, of(options), onEmpty).pipe(switchMap((option) => option.action));
+      return this.controllers[player.id].choose(this.gameState!, this.nextGameStates, of(options), onEmpty).pipe(switchMap((option) => {
+        if (option.action === undefined) return of(false);
+        return option.action;
+      }));
     }));
   }
 

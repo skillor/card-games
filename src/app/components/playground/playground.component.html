@@ -10,7 +10,7 @@
   </div>
   <div class="flex flex-col" *ngFor="let playerKey of gameState.playerOrder">
     {{playerKey}}
-    <app-card-stack class="flex w-fit" *ngFor="let cardStack of gameState.players[playerKey].stacks | keyvalue" [cardStack]="cardStack.value"></app-card-stack>
+    <app-card-stack class="flex w-fit" *ngFor="let cardStack of gameState.players[playerKey].stacks | keyvalue" [playerKey]="playerKey" [cardStack]="cardStack.value"></app-card-stack>
   </div>
   <div class="flex flex-row"><button class="btn" *ngFor="let option of textOptions" (click)="chooseOption(option)">{{option.text}}</button></div>
 </div>

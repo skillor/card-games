@@ -5,9 +5,9 @@
     <app-card-image *ngIf="getEmptyImage() as emptySrc" [src]="emptySrc"></app-card-image>
   </div>
 </ng-container>
-<ng-container *ngIf="cardStack?.type?.visibility === 'me'">
+<ng-container *ngIf="cardStack?.type?.visibility?.startsWith('hand')">
   <div class="flex flex-row flex-wrap">
-    <app-card *ngFor="let card of cardStack?.cards; let i = index" [card]="card" [back]="false"></app-card>
+    <app-card *ngFor="let card of cardStack?.cards; let i = index" [card]="card" [back]="isFlipped()"></app-card>
     <div #element></div>
   </div>
 </ng-container>

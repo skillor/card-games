@@ -11,5 +11,5 @@
   <select class="select select-bordered w-full max-w-xs" (change)="changeGameType($event.target)">
     <option *ngFor="let gameType of getGameTypes() | async | keyvalue" [selected]="gameType.value.id === roomState?.selectedGame?.id" [value]="gameType.key">{{gameType.value.name}}</option>
   </select>
+  <button class="btn btn-primary" (click)="startGame()">Start</button>
 </div>
-<button class="btn btn-primary" (click)="startGame()">Start</button>

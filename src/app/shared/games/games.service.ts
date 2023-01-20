@@ -181,7 +181,7 @@ export class GamesService {
   gameState = new BehaviorSubject<GameState | undefined>(undefined);
   waiting = new BehaviorSubject<boolean>(false);
 
-  autoPlay(game: Game): Observable<GameState> {
+  autoPlay(game: Game): Observable<{isAnimation: boolean, gameState: GameState}> {
     this.animationService.clearAnimations();
     this.animationService.registerAnimations(game.gameState!.animations);
     this.gameState.next(game.gameState);
@@ -190,17 +190,20 @@ export class GamesService {
       concatMap(() => this.gameState.pipe(
         map((v) => v!),
         concatMap((v) => {
+          let isAnimation = false;
           this.animationService.registerAnimations(v.animations);
           return this.animationService.pendingAnimations.pipe(
             takeWhile((i) => i > 0, true),
             map((i) => {
-              return v;
+              const r = {isAnimation: isAnimation, gameState: v};
+              isAnimation = true;
+              return r;
             }),
           );
         }),
       )),
-      map((v) => {this.waiting.next(v.waiting); return v;}),
-      takeWhile((v) => !v.ended, true),
+      map((v) => {this.waiting.next(v.gameState.waiting); return v;}),
+      takeWhile((v) => !v.gameState.ended, true),
     );
   }
 
@@ -217,5 +220,14 @@ export class GamesService {
         return v;
       }),
     );
+  }
+
+  meVisibility: string[] = []
+  setMeVisibility(players: string[]): void {
+    this.meVisibility = players;
+  }
+
+  getMeVisibility(player: string): boolean {
+    return this.meVisibility.includes(player);
   }
 }

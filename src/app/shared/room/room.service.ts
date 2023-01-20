@@ -1,14 +1,14 @@
 import { Injectable } from '@angular/core';
 import Peer, { DataConnection } from 'peerjs';
 import { fromEvent, Observable, switchMap, map, first, timeout, BehaviorSubject, interval, Subject, catchError, of } from 'rxjs';
-import { JoinRoom } from '../packets/join-room.packet';
+import { JoinRoomPacket } from '../packets/join-room.packet';
 import { Packet } from '../packets/packet';
 import { HostVisitor } from './host.visitor';
 import { ClientVisitor } from './client.visitor';
-import { RoomState } from './room.state';
+import { RoomState } from './room-state';
 import { User } from './user';
-import { RoomState as RoomStatePacket } from '../packets/room-state.packet';
-import { Ping } from '../packets/ping.packet';
+import { RoomStatePacket as RoomStatePacket } from '../packets/room-state.packet';
+import { PingPacket } from '../packets/ping.packet';
 import { GamesService } from '../games/games.service';
 
 @Injectable()
@@ -31,6 +31,11 @@ export class RoomService {
     })
   }
 
+  sendWaitResponseTo(connId: string, packet: Packet): Observable<Packet> {
+    if (!(connId in this.connections)) of(undefined);
+    return this.sendWaitResponse(this.connections[connId], packet);
+  }
+
   sendWaitResponse(conn: DataConnection, packet: Packet): Observable<Packet> {
     const hash = Math.random().toString(36).substring(2);
     const subject = new Subject<Packet>();
@@ -41,7 +46,7 @@ export class RoomService {
   }
 
   pingConnection(conn: DataConnection) {
-    this.sendWaitResponse(conn, new Ping(Date.now())).pipe(
+    this.sendWaitResponse(conn, new PingPacket(Date.now())).pipe(
       timeout(this.pingTimeout),
       catchError(() => {
         this.disconnectUser(conn.connectionId);
@@ -110,8 +115,8 @@ export class RoomService {
   }
 
   setupClientConnection(conn: DataConnection) {
-    conn.send(new JoinRoom(this.me!));
-    const v = new ClientVisitor(this, conn);
+    conn.send(new JoinRoomPacket(this.me!));
+    const v = new ClientVisitor(this, this.gamesService, conn);
     fromEvent(conn, 'close').subscribe(() => {
       this.disconnect();
     });
@@ -142,6 +147,7 @@ export class RoomService {
               users: {[this.id]: this.me},
               id: this.id,
               selectedGame: gameTypes[Object.keys(gameTypes)[0]],
+              state: 'lobby',
             });
             fromEvent(this.peer, 'connection').subscribe((conn) => this.setupHostConnection(<DataConnection>conn));
             return this.id;

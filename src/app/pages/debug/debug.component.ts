@@ -1,7 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { of, Subscription, switchMap } from 'rxjs';
-import { AnimationService } from 'src/app/shared/animation/animation.service';
 import { Controller } from 'src/app/shared/games/controller';
 import { Game } from 'src/app/shared/games/game';
 import { GameState } from 'src/app/shared/games/game-state';
@@ -22,7 +21,6 @@ export class DebugComponent implements OnInit {
   constructor(
     private route: ActivatedRoute,
     private gamesService: GamesService,
-    private animationService: AnimationService,
   ) { }
 
   ngOnInit(): void {
@@ -52,20 +50,17 @@ export class DebugComponent implements OnInit {
     if (this.isAutoPlaying()) {
       return this.stopAutoPlay();
     }
-    this.animationService.clearAnimations();
-    this.game.nextGameStates = [];
-    this.gameState = this.game.createGameState(['Player', 'AI1', 'AI2']);
+    this.game.createGameState(['Player', 'AI1', 'AI2']);
     this.game.controllers = {
       'Player': new HumanController(this.gamesService),
       // 'Player': new RandomController(),
       'AI1': new RandomController(),
       'AI2': new RandomController(),
     };
+    this.gamesService.setMeVisibility(['Player']);
     this.game.setSeed('seed');
-    this.animationService.registerAnimations(this.gameState.animations);
-    this.gameState = this.game.nextGameStates.pop();
     this.autoPlayer = this.gamesService.autoPlay(this.game).subscribe((v) => {
-      this.gameState = v;
+      this.gameState = v.gameState;
     });
   }
 

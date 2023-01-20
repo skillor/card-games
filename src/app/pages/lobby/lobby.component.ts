@@ -4,7 +4,7 @@ import { combineLatest, first, Observable, switchMap } from 'rxjs';
 import { GamesService } from 'src/app/shared/games/games.service';
 import { GameType } from 'src/app/shared/games/game-type';
 import { RoomService } from 'src/app/shared/room/room.service';
-import { RoomState } from 'src/app/shared/room/room.state';
+import { RoomState } from 'src/app/shared/room/room-state';
 import { User } from 'src/app/shared/room/user';
 
 @Component({
@@ -31,6 +31,10 @@ export class LobbyComponent implements OnInit {
       const roomId = params.get('id');
       if (roomState === undefined) {
         this.zone.run(() => this.router.navigate(['join', roomId]));
+        return;
+      }
+      if (roomState.state === 'playing') {
+        this.zone.run(() => this.router.navigate(['play', roomState.selectedGame.id, roomState.id]));
         return;
       }
       this.roomState = roomState;
@@ -66,6 +70,8 @@ export class LobbyComponent implements OnInit {
   }
 
   startGame(): void {
-    this.router.navigate(['play', this.roomState?.selectedGame.id, this.roomState?.id]);
+    if (this.roomState === undefined) return;
+    this.roomState.state = 'playing';
+    this.roomService.setRoomState(this.roomState);
   }
 }

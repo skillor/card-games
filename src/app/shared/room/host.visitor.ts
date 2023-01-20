@@ -1,8 +1,8 @@
 import { DataConnection } from "peerjs";
 import { first } from "rxjs";
-import { JoinRoom } from "../packets/join-room.packet";
-import { Ping } from "../packets/ping.packet";
-import { RoomState } from "../packets/room-state.packet";
+import { JoinRoomPacket } from "../packets/join-room.packet";
+import { PingPacket } from "../packets/ping.packet";
+import { RoomStatePacket } from "../packets/room-state.packet";
 import { Visitor } from "../packets/visitor";
 import { RoomService } from "./room.service";
 
@@ -11,7 +11,7 @@ export class HostVisitor extends Visitor<void> {
     super();
   }
 
-  override visitPing(e: Ping): void {
+  override visitPing(e: PingPacket): void {
     this.roomService.roomState.pipe(
       first()
     ).subscribe((roomState) => {
@@ -19,11 +19,11 @@ export class HostVisitor extends Visitor<void> {
       if (!(this.clientConn.connectionId in roomState.users)) return;
       roomState.users[this.clientConn.connectionId].ping = Date.now() - e.start;
       this.roomService.roomState.next(roomState);
-      this.roomService.broadcast(new RoomState(roomState));
+      this.roomService.broadcast(new RoomStatePacket(roomState));
     });
   }
 
-  override visitJoinRoom(e: JoinRoom): void {
+  override visitJoinRoom(e: JoinRoomPacket): void {
     this.roomService.roomState.pipe(
       first()
     ).subscribe((roomState) => {
