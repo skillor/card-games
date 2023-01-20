@@ -1,4 +1,4 @@
-<div class="flip-box" style="height:140px;width:100px;">
+<div class="flip-box" [class.card-option]="cardOptions.length > 0" (click)="click()" style="height:140px;width:100px;">
   <div class="flip-box-inner" #element>
     <div class="flip-box-front">
       <app-card-image [src]="frontSrc"></app-card-image>

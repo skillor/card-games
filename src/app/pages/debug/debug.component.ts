@@ -1,7 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { concatMap, map, Subscription, switchMap, takeWhile } from 'rxjs';
+import { of, Subscription, switchMap } from 'rxjs';
 import { AnimationService } from 'src/app/shared/animation/animation.service';
+import { Controller } from 'src/app/shared/games/controller';
 import { Game } from 'src/app/shared/games/game';
 import { GameState } from 'src/app/shared/games/game-state';
 import { GamesService } from 'src/app/shared/games/games.service';
@@ -25,14 +26,14 @@ export class DebugComponent implements OnInit {
   ) { }
 
   ngOnInit(): void {
-    this.route.paramMap.subscribe((params) => {
+    this.route.paramMap.pipe(switchMap((params) => {
       let gameId = params.get('game');
-      if (gameId === null) return;
-      this.gamesService.getGameType(gameId).pipe(
+      if (gameId === null) return of(undefined);
+      return this.gamesService.getGameType(gameId).pipe(
         switchMap((gameType) => this.gamesService.createGame(gameType)),
-      ).subscribe((game) => {
-        this.game = game;
-      });
+      );
+    })).subscribe((game) => {
+      this.game = game;
     });
   }
 

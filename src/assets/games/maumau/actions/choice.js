@@ -8,13 +8,13 @@ game.choose(
         game.cardOptions(
           game.topCards(game.getStack(of('draw'))),
           of(() => of(true)),
-          () => game.sequential(
+          of(() => game.sequential(
             game.moveCards(
               game.getStack(of('draw')),
               game.getStack(of('hand'), game.currentPlayer()),
               game.topCards(game.getStack(of('draw')))
             ),
-          ),
+          )),
         ),
         game.getStack(of('hand'), game.currentPlayer())
       ),
@@ -28,11 +28,11 @@ game.choose(
           game.eq(game.cardType(of('type'), game.first(cards)), of('J')),
         )
       ),
-      (cards) => game.sequential(
+      of((cards) => game.sequential(
         game.moveCards(game.getStack(of('hand'), game.currentPlayer()), game.getStack(of('main')), cards),
         game.setVariable(of('lastFace'), game.cardType(of('face'), game.first(cards))),
         game.runAction(game.add(of('play'), game.cardType(of('type'), game.first(cards)))),
-      ),
+      )),
     ), game.getStack(of('main')))
   )
 )

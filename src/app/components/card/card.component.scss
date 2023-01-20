@@ -1,3 +1,25 @@
+.card-option::after {
+  content: '';
+  display: block;
+  height: 100%;
+  position: absolute;
+  top: 0;
+  width: 100%;
+  background: linear-gradient(0deg, red -10%, transparent 10%, transparent 90%, red 110%), linear-gradient(90deg, red -10%, transparent 10%, transparent 90%, red 110%);
+  border-radius: 5px;
+}
+
+.card-option:hover::after {
+  content: '';
+  display: block;
+  height: 100%;
+  position: absolute;
+  top: 0;
+  width: 100%;
+  background: linear-gradient(0deg, blue -10%, transparent 10%, transparent 90%, blue 110%), linear-gradient(90deg, blue -10%, transparent 10%, transparent 90%, blue 110%);
+  border-radius: 5px;
+}
+
 .flip-box {
   perspective: 1000px;
 }

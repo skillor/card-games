@@ -1,7 +1,8 @@
 game.sequential(
   game.populate(game.getStack(of('draw')), of(1)),
   game.shuffle(game.getStack(of('draw'))),
-  game.forEachPlayer(
+  game.map(
+    game.players(),
     (player) => game.sequential(
       game.moveCards(
         game.getStack(of('draw')),

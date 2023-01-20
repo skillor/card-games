@@ -1,4 +1,5 @@
 import { Component, ElementRef, Input, OnDestroy, AfterViewInit, ViewChild } from '@angular/core';
+import { SafeUrl } from '@angular/platform-browser';
 import { Animatable } from 'src/app/shared/animation/animatable';
 import { AnimationService } from 'src/app/shared/animation/animation.service';
 import { Card } from 'src/app/shared/games/card';
@@ -76,8 +77,8 @@ export class CardStackComponent implements Animatable, AfterViewInit, OnDestroy 
     this.animationService.remove(this);
   }
 
-  getEmptyImage(): string | undefined {
-    if (!this.cardStack || !this.cardStack.type || !this.cardStack.type.emptyImage) return undefined;
-    return this.gamesService.getGameResource(this.cardStack.gameId, this.cardStack.type.emptyImage);
+  getEmptyImage(): SafeUrl | undefined {
+    if (!this.cardStack) return undefined;
+    return this.gamesService.getCardStackEmptyImage(this.cardStack);
   }
 }

@@ -9,8 +9,8 @@ const routes: Routes = [
   {component: HomeComponent, path: 'home'},
   {component: HomeComponent, path: 'join/:id'},
   {component: LobbyComponent, path: 'lobby/:id'},
-  {component: PlayComponent, path: 'play/:game/:id'},
   {component: PlayComponent, path: 'play/:game'},
+  {component: PlayComponent, path: 'play/:game/:id'},
   {component: DebugComponent, path: 'debug/:game'},
   {path: '**', redirectTo: '/home'},
 ];

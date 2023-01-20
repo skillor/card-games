@@ -7,7 +7,7 @@ game.sequential(
         game.cardOptions(
           game.topCards(game.getStack(of('draw'))),
           of(() => of(true)),
-          () => game.sequential(
+          of(() => game.sequential(
             game.runAction(of('refill')),
             game.moveCards(
               game.getStack(of('draw')),
@@ -15,7 +15,7 @@ game.sequential(
               game.topCards(game.getStack(of('draw')), game.getVariable(of('7counter')))
             ),
             game.setVariable(of('7counter'), of(0)),
-          ),
+          )),
         ),
         game.getStack(of('hand'), game.currentPlayer())
       ),
@@ -24,11 +24,11 @@ game.sequential(
         of((cards) =>
           game.eq(game.cardType(of('type'), game.first(cards)), of('7'))
         ),
-        (cards) => game.sequential(
+        of((cards) => game.sequential(
           game.moveCards(game.getStack(of('hand'), game.currentPlayer()), game.getStack(of('main')), cards),
           game.setVariable(of('lastFace'), game.cardType(of('face'), game.first(cards))),
           game.runAction(game.add(of('play'), game.cardType(of('type'), game.first(cards)))),
-        ),
+        )),
       ), game.getStack(of('main')))
     )
   )

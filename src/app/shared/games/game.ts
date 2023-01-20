@@ -1,4 +1,4 @@
-import { catchError, combineLatest, concatAll, concatMap, connectable, delay, finalize, first, generate, interval, last, map, mergeMap, mergeScan, observable, Observable, of, publish, skip, skipWhile, Subject, switchMap, switchScan, takeUntil, takeWhile, tap, throttle, timer } from "rxjs";
+import { catchError, combineLatest, concat, concatAll, concatMap, connectable, delay, finalize, first, generate, interval, last, map, mergeMap, mergeScan, observable, Observable, of, publish, skip, skipWhile, Subject, switchMap, switchScan, takeUntil, takeWhile, tap, throttle, timer } from "rxjs";
 import { Animation } from "../animation/animation";
 import { Card } from "./card";
 import { CardStack } from "./card-stack";
@@ -62,7 +62,7 @@ export class Game {
       phaseCounter: {},
       animations: [],
       players: players,
-      playerOrder: this.shuffleArray(Object.keys(players)),
+      playerOrder: Object.keys(players).sort(),
       stacks: this.createEmptyCardStacks(this.gameType.globalStacks),
       variables: JSON.parse(JSON.stringify(this.gameType.variables)),
       playersTurn: 0,
@@ -98,11 +98,10 @@ export class Game {
     );
   }
 
-  forEachPlayer(f: (player: Observable<Player>) => Observable<any>): Observable<any[]> {
-    return combineLatest(
-      Object.values(this.gameState!.players).sort(
-        (a, b) => this.gameState!.playerOrder.indexOf(a.id) - this.gameState!.playerOrder.indexOf(b.id)
-      ).map((player => f(of(player))))
+  players(): Observable<Player[]> {
+    return of(
+      Object.values(this.gameState!.players)
+      .sort((a, b) => this.gameState!.playerOrder.indexOf(a.id) - this.gameState!.playerOrder.indexOf(b.id))
     );
   }
 
@@ -236,18 +235,18 @@ export class Game {
   addCardTargets(options: Observable<GameOption[]>, ...targets: Observable<{id: string}>[]): Observable<GameOption[]> {
     return combineLatest([options, ...targets]).pipe(switchMap(([options, ...targets]) => {
       for (let option of options) {
-        option.cardTarget = targets;
+        option.cardTargets = targets;
       }
       return of(options);
     }));
   }
 
-  cardOptions(cards: Observable<Card[]>, filter: Observable<(cards: Observable<Card[]>) => Observable<boolean>>, action: (cards: Observable<Card[]>) => Observable<any>): Observable<GameOption[]> {
+  cardOptions(cards: Observable<Card[]>, filter: Observable<(cards: Observable<Card[]>) => Observable<boolean>>, action: Observable<(cards: Observable<Card[]>) => Observable<any>>): Observable<GameOption[]> {
     return combineLatest([cards, filter]).pipe(
       switchMap(([cards, filter]) => {
         return combineLatest(cards.map(card => filter(of([card])).pipe(map((filter) => ({card, filter}))))).pipe(
           switchMap((values) => {
-            return of(values.filter((v) => v.filter).map((v) => ({card: v.card, action: action(of([v.card]))})));
+            return of(values.filter((v) => v.filter).map((v) => ({card: v.card, action: action.pipe(switchMap((action) => action(of([v.card]))))})));
           }),
         );
       }),
@@ -258,6 +257,10 @@ export class Game {
     return combineLatest([player, options]).pipe(switchMap(([player, options]) => {
       return this.controllers[player.id].choose(this.gameState!, this.nextGameStates, of(options), onEmpty).pipe(switchMap((option) => option.action));
     }));
+  }
+
+  map<T>(a: Observable<T[]>, f: (o: Observable<T>) => Observable<any>): Observable<any[]> {
+    return a.pipe(switchMap((a) => combineLatest(a.map((x) => f(of(x))))));
   }
 
   length<T>(a: Observable<T[]>): Observable<number> {
@@ -357,7 +360,10 @@ export class Game {
   }
 
   sequential(...obs: Observable<any>[]): Observable<any> {
-    return combineLatest(obs);
+    if (obs.length == 1) return obs[0];
+    return obs[0].pipe(
+      concatMap(() => this.sequential(...obs.slice(1))),
+    );
   }
 
   runFunction(f: string | undefined): Observable<any> {

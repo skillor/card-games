@@ -7,4 +7,5 @@ export interface CardType {
   types: {[key: string]: string};
   frontImage?: string;
   backImage?: string;
+  size?: {width: number, height: number};
 }

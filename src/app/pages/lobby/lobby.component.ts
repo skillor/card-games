@@ -64,4 +64,8 @@ export class LobbyComponent implements OnInit {
       this.roomService.setRoomState(this.roomState);
     });
   }
+
+  startGame(): void {
+    this.router.navigate(['play', this.roomState?.selectedGame.id, this.roomState?.id]);
+  }
 }

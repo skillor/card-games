@@ -1,16 +1,18 @@
-import { AfterViewInit, Component, ElementRef, Input, OnChanges, OnDestroy, SimpleChanges, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, Input, OnChanges, OnDestroy, OnInit, SimpleChanges, ViewChild } from '@angular/core';
 import { AnimationService } from 'src/app/shared/animation/animation.service';
 import { Animatable} from 'src/app/shared/animation/animatable';
 import { Card } from 'src/app/shared/games/card';
 import { GamesService } from 'src/app/shared/games/games.service';
 import { SafeUrl } from '@angular/platform-browser';
+import { map, skipWhile, Subscription, switchMap, tap } from 'rxjs';
+import { GameOption } from 'src/app/shared/games/game-option';
 
 @Component({
   selector: 'app-card',
   templateUrl: './card.component.html',
   styleUrls: ['./card.component.scss']
 })
-export class CardComponent implements Animatable, AfterViewInit, OnChanges, OnDestroy {
+export class CardComponent implements Animatable, OnInit, AfterViewInit, OnChanges, OnDestroy {
   @Input()
   card?: Card;
 
@@ -26,6 +28,9 @@ export class CardComponent implements Animatable, AfterViewInit, OnChanges, OnDe
 
   @ViewChild('element')
   private innerElementRef: ElementRef | undefined;
+
+  cardOptions: GameOption[] = [];
+  subscription?: Subscription;
 
   constructor(
     private outerElementRef: ElementRef,
@@ -73,12 +78,37 @@ export class CardComponent implements Animatable, AfterViewInit, OnChanges, OnDe
     return this.innerElementRef!.nativeElement.getBoundingClientRect();
   }
 
+  click(): void {
+    if (this.cardOptions.length > 0) {
+      if (this.cardOptions.length > 1) throw new Error('more targets not implemented');
+      this.gamesService.chooseOption.next(this.cardOptions[0]);
+    }
+  }
+
+  ngOnInit(): void {
+    this.subscription = this.gamesService.waiting.pipe(
+      skipWhile((waiting) => {
+        if (waiting) return false;
+        this.cardOptions = [];
+        return true;
+      }),
+      switchMap(() => this.gamesService.currentOptions),
+    ).subscribe((options) => {
+      this.cardOptions = [];
+      if (!options || !this.card) return;
+      for (let option of options) {
+        if (option.card && option.card.id === this.card.id) this.cardOptions.push(option);
+      }
+    });
+  }
+
   ngAfterViewInit() {
     this.animationService.register(this);
   }
 
   ngOnDestroy() {
     this.animationService.remove(this);
+    this.subscription?.unsubscribe();
   }
 
   ngOnChanges(change: SimpleChanges): void {

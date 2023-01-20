@@ -1,10 +1,17 @@
-<div class="flex flex-col" *ngIf="gameState; else loading">
+<div class="flex flex-col select-none" *ngIf="gameState; else loading">
   <div class="flex flex-row">
     <app-card-stack class="flex w-fit" *ngFor="let cardStack of gameState.stacks | keyvalue" [cardStack]="cardStack.value"></app-card-stack>
+  </div>
+  <div class="stats stats-horizontal bg-primary text-primary-content">
+    <div class="stat" *ngFor="let variable of gameState.variables | keyvalue">
+      <div class="stat-title">{{variable.key}}</div>
+      <div class="stat-value">{{variable.value.value}}</div>
+    </div>
   </div>
   <div class="flex flex-col" *ngFor="let playerKey of gameState.playerOrder">
     {{playerKey}}
     <app-card-stack class="flex w-fit" *ngFor="let cardStack of gameState.players[playerKey].stacks | keyvalue" [cardStack]="cardStack.value"></app-card-stack>
   </div>
+  <div class="flex flex-row"><button class="btn" *ngFor="let option of textOptions" (click)="chooseOption(option)">{{option.text}}</button></div>
 </div>
 <ng-template #loading>Loading...</ng-template>

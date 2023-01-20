@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { BehaviorSubject, combineLatest, concatMap, filter, first, map, Observable, of, Subject, switchMap, takeWhile, tap } from 'rxjs';
+import { BehaviorSubject, combineLatest, concatMap, filter, first, fromEvent, map, Observable, of, Subject, switchMap, takeWhile, tap } from 'rxjs';
 import { GameAction, GameType } from './game-type';
 import { CardType } from './card-type';
 import { Game } from './game';
@@ -8,6 +8,7 @@ import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
 import { GameOption } from './game-option';
 import { GameState } from './game-state';
 import { AnimationService } from '../animation/animation.service';
+import { CardStack } from './card-stack';
 
 @Injectable()
 export class GamesService {
@@ -42,6 +43,11 @@ export class GamesService {
     return this.getCardTypePath(cardType.gameId!, cardType.id!) + '/front.svg';
   }
 
+  getCardStackEmptyImage(cardStack: CardStack): SafeUrl | undefined {
+    if (!cardStack.type || !cardStack.type.emptyImage) return undefined;
+    return this.sanitizer.bypassSecurityTrustResourceUrl(cardStack.type.emptyImage);
+  }
+
   getCardType(gameId: string, id: string): Observable<CardType> {
     return this.http.get<CardType>(this.getCardTypePath(gameId, id) + '/info.json').pipe(
       map((card) => { return {...card, id: id, gameId: gameId}; }),
@@ -62,7 +68,7 @@ export class GamesService {
     );
   }
 
-  loadImage(src: string, cardType: CardType): Observable<Blob> {
+  loadImage(src: string): Observable<Blob> {
     return this.http.get(src, {responseType: 'blob'}).pipe(
       map((response: Blob) => {
         return response;
@@ -76,15 +82,31 @@ export class GamesService {
     else obs = of(game);
     return obs.pipe(
       switchMap((game) => {
-        return combineLatest(Object.values(game.cards!).map((cardType) => this.loadImage(this.getCardFrontImage(cardType).toString(), cardType).pipe(
-          map((blob: Blob) => {
+        return combineLatest(Object.values(game.cards!).map((cardType) => this.loadImage(this.getCardFrontImage(cardType).toString()).pipe(
+          switchMap((blob: Blob) => {
             cardType.frontImage = URL.createObjectURL(blob);
-            return cardType;
+            if (cardType.size !== undefined) return of(cardType);
+            const img = new Image();
+            const obs = fromEvent(img, 'load').pipe(map((event) => {
+              const loadedImg: {width: number, height: number} = <any>event.currentTarget;
+              cardType.size = {width: loadedImg.width, height: loadedImg.height};
+              return cardType;
+            }));
+            img.src = cardType.frontImage;
+            return obs;
           })
-        )).concat(Object.values(game.cards!).map((cardType) => this.loadImage(this.getCardBackImage(cardType).toString(), cardType).pipe(
-          map((blob: Blob) => {
+        )).concat(Object.values(game.cards!).map((cardType) => this.loadImage(this.getCardBackImage(cardType).toString()).pipe(
+          switchMap((blob: Blob) => {
             cardType.backImage = URL.createObjectURL(blob);
-            return cardType;
+            if (cardType.size !== undefined) return of(cardType);
+            const img = new Image();
+            const obs = fromEvent(img, 'load').pipe(map((event) => {
+              const loadedImg: {width: number, height: number} = <any>event.currentTarget;
+              cardType.size = {width: loadedImg.width, height: loadedImg.height};
+              return cardType;
+            }));
+            img.src = cardType.backImage;
+            return obs;
           })
         )))).pipe(
           map(() => {
@@ -126,6 +148,10 @@ export class GamesService {
     return this.http.get<GameType>(this.getGamePath(id) + '/info.json').pipe(
       map((game) => {
         game.id = id;
+        for (let stackType of Object.values(game.globalStacks).concat(...Object.values(game.playerStacks))) {
+          if (!stackType.emptyImage) continue;
+          stackType.emptyImage = this.getGameResource(game.id, stackType.emptyImage);
+        }
         this.games[id] = game;
         return game;
       }),
@@ -152,7 +178,8 @@ export class GamesService {
     )
   }
 
-  gameState = new BehaviorSubject<GameState | undefined>(undefined)
+  gameState = new BehaviorSubject<GameState | undefined>(undefined);
+  waiting = new BehaviorSubject<boolean>(false);
 
   autoPlay(game: Game): Observable<GameState> {
     this.animationService.clearAnimations();
@@ -172,6 +199,7 @@ export class GamesService {
           );
         }),
       )),
+      map((v) => {this.waiting.next(v.waiting); return v;}),
       takeWhile((v) => !v.ended, true),
     );
   }
@@ -183,7 +211,11 @@ export class GamesService {
     this.currentOptions.next(options);
     return this.chooseOption.pipe(
       first(),
-      map((v) => {this.currentOptions.next(undefined); return v;}),
+      map((v) => {
+        this.currentOptions.next(undefined);
+        this.waiting.next(false);
+        return v;
+      }),
     );
   }
 }
