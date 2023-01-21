@@ -23,7 +23,7 @@ export class CardComponent implements Animatable, OnInit, AfterViewInit, OnChang
   backSrc?: SafeUrl;
 
   getId(): string {
-    return this.card!.id;
+    return this.card ? this.card.id : 'undefined';
   }
 
   @ViewChild('element')

@@ -70,7 +70,7 @@ export class CardStackComponent implements Animatable, AfterViewInit, OnDestroy 
   }
 
   getId(): string {
-    return this.cardStack!.id;
+    return this.cardStack ? this.cardStack.id : 'undefined';
   }
 
   ngAfterViewInit() {

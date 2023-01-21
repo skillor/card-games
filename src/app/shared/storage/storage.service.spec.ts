@@ -6,7 +6,9 @@ describe('StorageService', () => {
   let service: StorageService;
 
   beforeEach(() => {
-    TestBed.configureTestingModule({});
+    TestBed.configureTestingModule({
+      providers: [{ provide: StorageService, useValue: new StorageService() }]
+    });
     service = TestBed.inject(StorageService);
   });
 
