@@ -50,7 +50,11 @@ export class PlayComponent implements OnInit, OnDestroy {
           return of(undefined);
         }
         const gameId = params.get('game');
-        if (!gameId || !this.isHost()) return of(undefined);
+        if (!gameId) return of(undefined);
+        if (!this.isHost()) return this.gamesService.getGameType(gameId).pipe(
+          switchMap((gameType) => this.gamesService.loadFullGame(gameType)),
+          map(() => undefined),
+        );
         return this.gamesService.getGameType(gameId).pipe(
           switchMap((gameType) => this.gamesService.createGame(gameType)),
         );
