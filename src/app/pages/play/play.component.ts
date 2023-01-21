@@ -1,15 +1,14 @@
 import { Component, NgZone, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { combineLatest, concatMap, first, map, of, Subscription, switchMap, takeWhile, tap } from 'rxjs';
-import { GameState } from 'src/app/shared/games/game-state';
 import { GamesService } from 'src/app/shared/games/games.service';
 import { HumanController } from 'src/app/shared/games/human-controller';
 import { RandomController } from 'src/app/shared/games/random-controller';
 import { RoomService } from 'src/app/shared/room/room.service';
 import { RoomState } from 'src/app/shared/room/room-state';
 import { AnimationService } from 'src/app/shared/animation/animation.service';
-import { Controller } from 'src/app/shared/games/controller';
 import { RemoteController } from 'src/app/shared/games/remote-controller';
+import { GameState } from 'src/app/shared/games/game-state';
 
 @Component({
   selector: 'app-play',
@@ -18,7 +17,7 @@ import { RemoteController } from 'src/app/shared/games/remote-controller';
 })
 export class PlayComponent implements OnInit, OnDestroy {
 
-  subscription?: Subscription;
+  subscriptions: Subscription[] = [];
   roomState?: RoomState;
   gameState?: GameState;
 
@@ -40,9 +39,24 @@ export class PlayComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    this.subscription = combineLatest([this.roomService.roomState, this.route.paramMap]).pipe(
-      tap(([roomState, params]) => this.roomState = roomState),
+    this.subscriptions.push(this.roomService.roomState.subscribe((roomState) => {
+      if (roomState?.state === 'lobby') {
+        this.zone.run(() => this.router.navigate(['lobby', roomState.id]));
+        return;
+      }
+      if (this.isHost() && roomState && roomState.gameState  && roomState.gameState.ended) {
+        roomState.state = 'lobby';
+        this.roomService.setRoomState(roomState);
+      }
+      this.roomState = roomState;
+    }));
+
+    this.subscriptions.push(combineLatest([this.roomService.roomState, this.route.paramMap]).pipe(
       first(),
+      map((v) => {
+        this.roomState = v[0];
+        return v;
+      }),
       switchMap(([roomState, params]) => {
         const roomId = params.get('id');
         if (roomState === undefined && roomId !== null) {
@@ -109,10 +123,12 @@ export class PlayComponent implements OnInit, OnDestroy {
       }),
     ).subscribe((gameState) => {
       this.gameState = gameState;
-    });
+    }));
   }
 
   ngOnDestroy(): void {
-    this.subscription?.unsubscribe();
+    for (let subscription of this.subscriptions) {
+      subscription.unsubscribe();
+    }
   }
 }

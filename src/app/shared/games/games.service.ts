@@ -81,38 +81,38 @@ export class GamesService {
     if (game.cards === undefined) obs = this.loadCardTypes(game);
     else obs = of(game);
     return obs.pipe(
-      switchMap((game) => {
-        return combineLatest(Object.values(game.cards!).map((cardType) => this.loadImage(this.getCardFrontImage(cardType).toString()).pipe(
-          switchMap((blob: Blob) => {
-            // cardType.frontImage = URL.createObjectURL(blob);
-            // if (cardType.size !== undefined) return of(cardType);
-            // const img = new Image();
-            // const obs = fromEvent(img, 'load').pipe(map((event) => {
-            //   const loadedImg: {width: number, height: number} = <any>event.currentTarget;
-            //   cardType.size = {width: loadedImg.width, height: loadedImg.height};
-            //   return cardType;
-            // }));
-            // img.src = cardType.frontImage;
-            return of(cardType);
-          })
-        )).concat(Object.values(game.cards!).map((cardType) => this.loadImage(this.getCardBackImage(cardType).toString()).pipe(
-          switchMap((blob: Blob) => {
-            // cardType.backImage = URL.createObjectURL(blob);
-            // if (cardType.size !== undefined) return of(cardType);
-            // const img = new Image();
-            // const obs = fromEvent(img, 'load').pipe(map((event) => {
-            //   const loadedImg: {width: number, height: number} = <any>event.currentTarget;
-            //   cardType.size = {width: loadedImg.width, height: loadedImg.height};
-            //   return cardType;
-            // }));
-            // img.src = cardType.backImage;
-            return of(cardType);
-          })
-        )))).pipe(
-          map(() => {
-            return game;
-          }));
-      })
+      // switchMap((game) => {
+      //   return combineLatest(Object.values(game.cards!).map((cardType) => this.loadImage(this.getCardFrontImage(cardType).toString()).pipe(
+      //     switchMap((blob: Blob) => {
+      //       // cardType.frontImage = URL.createObjectURL(blob);
+      //       // if (cardType.size !== undefined) return of(cardType);
+      //       // const img = new Image();
+      //       // const obs = fromEvent(img, 'load').pipe(map((event) => {
+      //       //   const loadedImg: {width: number, height: number} = <any>event.currentTarget;
+      //       //   cardType.size = {width: loadedImg.width, height: loadedImg.height};
+      //       //   return cardType;
+      //       // }));
+      //       // img.src = cardType.frontImage;
+      //       return of(cardType);
+      //     })
+      //   )).concat(Object.values(game.cards!).map((cardType) => this.loadImage(this.getCardBackImage(cardType).toString()).pipe(
+      //     switchMap((blob: Blob) => {
+      //       // cardType.backImage = URL.createObjectURL(blob);
+      //       // if (cardType.size !== undefined) return of(cardType);
+      //       // const img = new Image();
+      //       // const obs = fromEvent(img, 'load').pipe(map((event) => {
+      //       //   const loadedImg: {width: number, height: number} = <any>event.currentTarget;
+      //       //   cardType.size = {width: loadedImg.width, height: loadedImg.height};
+      //       //   return cardType;
+      //       // }));
+      //       // img.src = cardType.backImage;
+      //       return of(cardType);
+      //     })
+      //   )))).pipe(
+      //     map(() => {
+      //       return game;
+      //     }));
+      // })
     );
   }
 

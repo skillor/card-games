@@ -29,9 +29,9 @@ game.choose(
         )
       ),
       of((cards) => game.sequential(
-        game.moveCards(game.getStack(of('hand'), game.currentPlayer()), game.getStack(of('main')), cards),
         game.setVariable(of('lastFace'), game.cardType(of('face'), game.first(cards))),
         game.runAction(game.add(of('play'), game.cardType(of('type'), game.first(cards)))),
+        game.moveCards(game.getStack(of('hand'), game.currentPlayer()), game.getStack(of('main')), cards),
       )),
     ), game.getStack(of('main')))
   )
