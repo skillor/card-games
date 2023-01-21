@@ -35,12 +35,12 @@ export class GamesService {
 
   getCardBackImage(cardType: CardType): SafeUrl {
     if (cardType.backImage !== undefined) return this.sanitizer.bypassSecurityTrustResourceUrl(cardType.backImage);
-    return this.getGameResource(cardType.gameId!, 'cards/back.svg');
+    return this.sanitizer.bypassSecurityTrustResourceUrl(this.getGameResource(cardType.gameId!, 'cards/back.svg'));
   }
 
   getCardFrontImage(cardType: CardType): SafeUrl {
     if (cardType.frontImage !== undefined) return this.sanitizer.bypassSecurityTrustResourceUrl(cardType.frontImage);
-    return this.getCardTypePath(cardType.gameId!, cardType.id!) + '/front.svg';
+    return this.sanitizer.bypassSecurityTrustResourceUrl(this.getCardTypePath(cardType.gameId!, cardType.id!) + '/front.svg');
   }
 
   getCardStackEmptyImage(cardStack: CardStack): SafeUrl | undefined {
