@@ -1,0 +1,31 @@
+{
+  "name": "Mau Mau",
+  "globalStacks": {
+    "draw": {"visibility": "stack-hidden", "emptyImage": "gfx/empty.svg"},
+    "main": {"visibility": "stack", "emptyImage": "gfx/empty.svg"}
+  },
+  "playerStacks": {
+    "hand": {"visibility": "hand-me"}
+  },
+  "variables": {
+    "startHandCards": {"value": 6},
+    "lastFace": {"value": ""},
+    "7counter": {"value": 0},
+    "playedA": {"value": false}
+  },
+  "startPhase": "start",
+  "gamePhases": {
+    "start": {"action": "gameStart"},
+    "main": {"action": "mainPhase"}
+  },
+  "gameActions": {
+    "gameStart": {"actionFile": "actions/start.js"},
+    "mainPhase": {"actionFile": "actions/main.js"},
+    "refill": {"actionFile": "actions/refill.js"},
+    "choice": {"actionFile": "actions/choice.js"},
+    "7choice": {"actionFile": "actions/7choice.js"},
+    "playJ": {"actionFile": "actions/playJ.js"},
+    "play7": {"action": "game.setVariable(of('7counter'), game.add(game.getVariable(of('7counter')), of(2)))"},
+    "playA": {"action": "game.setVariable(of('playedA'), of(true))"}
+  }
+}
