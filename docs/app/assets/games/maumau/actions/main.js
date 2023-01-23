@@ -1,5 +1,5 @@
 game.if(
-  game.eq(of(true), game.getVariable(of('playedA'))),
+  game.eq(of(true), game.ToBoolean(game.getVariable(of('playedA')))),
   game.sequential(
     game.setVariable(of('playedA'), of(false)),
     game.setPhase(game.nextPlayer(), of('main'))
@@ -7,7 +7,7 @@ game.if(
   game.sequential(
     game.runAction(of('refill')),
     game.if(
-      game.eq(of(0), game.getVariable(of('7counter'))),
+      game.eq(of(0), game.ToNumber(game.getVariable(of('7counter')))),
       game.runAction(of('choice')),
       game.runAction(of('7choice')),
     ),

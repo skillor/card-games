@@ -1,15 +1,15 @@
 game.sequential(
-  game.populate(game.getStack(of('draw')), of(1)),
+  game.populate(game.getStack(of('draw'))),
   game.shuffle(game.getStack(of('draw'))),
   game.map(
     game.players(),
-    (player) => game.sequential(
+    of((player) => game.sequential(
       game.moveCards(
         game.getStack(of('draw')),
         game.getStack(of('hand'), player),
-        game.topCards(game.getStack(of('draw')), game.getVariable(of('startHandCards')))
+        game.topCards(game.getStack(of('draw')), game.ToString(game.getVariable(of('startHandCards'))))
       )
-    )
+    ))
   ),
   game.moveCards(
     game.getStack(of('draw')),
