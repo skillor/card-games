@@ -20,6 +20,9 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { AnimationService } from './shared/animation/animation.service';
 import { SettingsService } from './shared/settings/settings.service';
 import { SettingsComponent } from './components/settings/settings.component';
+import { CreateGameComponent } from './pages/create-game/create-game.component';
+import { ReactComponentDirective } from './directives/react-component.directive';
+import { FileService } from './shared/file/file.service';
 
 @NgModule({
   declarations: [
@@ -32,7 +35,9 @@ import { SettingsComponent } from './components/settings/settings.component';
     CardStackComponent,
     PlaygroundComponent,
     CardImageComponent,
-    SettingsComponent
+    SettingsComponent,
+    CreateGameComponent,
+    ReactComponentDirective,
   ],
   imports: [
     BrowserModule,
@@ -47,6 +52,7 @@ import { SettingsComponent } from './components/settings/settings.component';
     GamesService,
     AnimationService,
     SettingsService,
+    FileService,
   ],
   bootstrap: [AppComponent]
 })

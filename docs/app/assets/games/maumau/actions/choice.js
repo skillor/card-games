@@ -4,7 +4,7 @@ game.choose(
     game.if(
       game.eq(of(1), game.add(game.length(game.cards(game.getStack(of('draw')))), game.length(game.cards(game.getStack(of('main')))))),
       of([]),
-      game.addCardTargets(
+      game.addCardStackTargets(
         game.cardOptions(
           game.topCards(game.getStack(of('draw'))),
           of(() => of(true)),
@@ -19,7 +19,7 @@ game.choose(
         game.getStack(of('hand'), game.currentPlayer())
       ),
     ),
-    game.addCardTargets(game.cardOptions(
+    game.addCardStackTargets(game.cardOptions(
       game.cards(game.getStack(of('hand'), game.currentPlayer())),
       of((cards) =>
         game.or(

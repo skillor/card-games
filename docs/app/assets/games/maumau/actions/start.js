@@ -18,5 +18,5 @@ game.sequential(
   ),
   game.setVariable(of('lastFace'), game.cardType(of('face'), game.first(game.topCards(game.getStack(of('main')))))),
   game.runAction(game.add(of('play'), game.cardType(of('type'), game.first(game.topCards(game.getStack(of('main'))))))),
-  game.setPhase(game.randomPlayer(), of('main'))
+  game.setPhase(game.randomChoice(game.players()), of('main'))
 )

@@ -1,0 +1,1519 @@
+{
+  "types": [
+    "string",
+    "number",
+    "boolean",
+    "CardStack",
+    "Player",
+    "Variable",
+    "FunctionResult",
+    "Card",
+    "GameOption"
+  ],
+  "functions": [
+    {
+      "name": "ToString",
+      "typeParameters": [
+        "T"
+      ],
+      "inputs": [
+        {
+          "name": "x",
+          "type": {
+            "options": [
+              {
+                "type": {
+                  "isArray": false,
+                  "name": "T"
+                }
+              }
+            ]
+          },
+          "optional": false,
+          "dotdot": false
+        }
+      ],
+      "outputType": {
+        "options": [
+          {
+            "type": {
+              "isArray": false,
+              "name": "string"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "ToNumber",
+      "typeParameters": [
+        "T"
+      ],
+      "inputs": [
+        {
+          "name": "x",
+          "type": {
+            "options": [
+              {
+                "type": {
+                  "isArray": false,
+                  "name": "T"
+                }
+              }
+            ]
+          },
+          "optional": false,
+          "dotdot": false
+        }
+      ],
+      "outputType": {
+        "options": [
+          {
+            "type": {
+              "isArray": false,
+              "name": "number"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "ToBoolean",
+      "typeParameters": [
+        "T"
+      ],
+      "inputs": [
+        {
+          "name": "x",
+          "type": {
+            "options": [
+              {
+                "type": {
+                  "isArray": false,
+                  "name": "T"
+                }
+              }
+            ]
+          },
+          "optional": false,
+          "dotdot": false
+        }
+      ],
+      "outputType": {
+        "options": [
+          {
+            "type": {
+              "isArray": false,
+              "name": "boolean"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "getStack",
+      "typeParameters": [],
+      "inputs": [
+        {
+          "name": "id",
+          "type": {
+            "options": [
+              {
+                "type": {
+                  "isArray": false,
+                  "name": "string"
+                }
+              }
+            ]
+          },
+          "optional": false,
+          "dotdot": false
+        },
+        {
+          "name": "player",
+          "type": {
+            "options": [
+              {
+                "type": {
+                  "isArray": false,
+                  "name": "Player"
+                }
+              }
+            ]
+          },
+          "optional": true,
+          "dotdot": false
+        }
+      ],
+      "outputType": {
+        "options": [
+          {
+            "type": {
+              "isArray": false,
+              "name": "CardStack"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "getVariable",
+      "typeParameters": [],
+      "inputs": [
+        {
+          "name": "id",
+          "type": {
+            "options": [
+              {
+                "type": {
+                  "isArray": false,
+                  "name": "string"
+                }
+              }
+            ]
+          },
+          "optional": false,
+          "dotdot": false
+        }
+      ],
+      "outputType": {
+        "options": [
+          {
+            "type": {
+              "isArray": false,
+              "name": "Variable"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "setVariable",
+      "typeParameters": [
+        "T"
+      ],
+      "inputs": [
+        {
+          "name": "id",
+          "type": {
+            "options": [
+              {
+                "type": {
+                  "isArray": false,
+                  "name": "string"
+                }
+              }
+            ]
+          },
+          "optional": false,
+          "dotdot": false
+        },
+        {
+          "name": "value",
+          "type": {
+            "options": [
+              {
+                "type": {
+                  "isArray": false,
+                  "name": "T"
+                }
+              }
+            ]
+          },
+          "optional": false,
+          "dotdot": false
+        }
+      ],
+      "outputType": {
+        "options": [
+          {
+            "type": {
+              "isArray": false,
+              "name": "FunctionResult"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "players",
+      "typeParameters": [],
+      "inputs": [],
+      "outputType": {
+        "options": [
+          {
+            "type": {
+              "isArray": true,
+              "name": "Player"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "randomChoice",
+      "typeParameters": [
+        "T"
+      ],
+      "inputs": [
+        {
+          "name": "options",
+          "type": {
+            "options": [
+              {
+                "type": {
+                  "isArray": true,
+                  "name": "T"
+                }
+              }
+            ]
+          },
+          "optional": false,
+          "dotdot": false
+        }
+      ],
+      "outputType": {
+        "options": [
+          {
+            "type": {
+              "isArray": false,
+              "name": "T"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "currentPlayer",
+      "typeParameters": [],
+      "inputs": [],
+      "outputType": {
+        "options": [
+          {
+            "type": {
+              "isArray": false,
+              "name": "Player"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "nextPlayer",
+      "typeParameters": [],
+      "inputs": [],
+      "outputType": {
+        "options": [
+          {
+            "type": {
+              "isArray": false,
+              "name": "Player"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "setPhase",
+      "typeParameters": [],
+      "inputs": [
+        {
+          "name": "player",
+          "type": {
+            "options": [
+              {
+                "type": {
+                  "isArray": false,
+                  "name": "Player"
+                }
+              }
+            ]
+          },
+          "optional": false,
+          "dotdot": false
+        },
+        {
+          "name": "phase",
+          "type": {
+            "options": [
+              {
+                "type": {
+                  "isArray": false,
+                  "name": "string"
+                }
+              }
+            ]
+          },
+          "optional": false,
+          "dotdot": false
+        }
+      ],
+      "outputType": {
+        "options": [
+          {
+            "type": {
+              "isArray": false,
+              "name": "FunctionResult"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "cards",
+      "typeParameters": [],
+      "inputs": [
+        {
+          "name": "stack",
+          "type": {
+            "options": [
+              {
+                "type": {
+                  "isArray": false,
+                  "name": "CardStack"
+                }
+              }
+            ]
+          },
+          "optional": false,
+          "dotdot": false
+        }
+      ],
+      "outputType": {
+        "options": [
+          {
+            "type": {
+              "isArray": true,
+              "name": "Card"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "topCards",
+      "typeParameters": [],
+      "inputs": [
+        {
+          "name": "stack",
+          "type": {
+            "options": [
+              {
+                "type": {
+                  "isArray": false,
+                  "name": "CardStack"
+                }
+              }
+            ]
+          },
+          "optional": false,
+          "dotdot": false
+        },
+        {
+          "name": "n",
+          "type": {
+            "options": [
+              {
+                "type": {
+                  "isArray": false,
+                  "name": "number"
+                }
+              }
+            ]
+          },
+          "optional": true,
+          "dotdot": false
+        }
+      ],
+      "outputType": {
+        "options": [
+          {
+            "type": {
+              "isArray": true,
+              "name": "Card"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "bottomCards",
+      "typeParameters": [],
+      "inputs": [
+        {
+          "name": "stack",
+          "type": {
+            "options": [
+              {
+                "type": {
+                  "isArray": false,
+                  "name": "CardStack"
+                }
+              }
+            ]
+          },
+          "optional": false,
+          "dotdot": false
+        },
+        {
+          "name": "n",
+          "type": {
+            "options": [
+              {
+                "type": {
+                  "isArray": false,
+                  "name": "number"
+                }
+              }
+            ]
+          },
+          "optional": true,
+          "dotdot": false
+        }
+      ],
+      "outputType": {
+        "options": [
+          {
+            "type": {
+              "isArray": true,
+              "name": "Card"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "empty",
+      "typeParameters": [
+        "T"
+      ],
+      "inputs": [
+        {
+          "name": "a",
+          "type": {
+            "options": [
+              {
+                "type": {
+                  "isArray": true,
+                  "name": "T"
+                }
+              }
+            ]
+          },
+          "optional": false,
+          "dotdot": false
+        }
+      ],
+      "outputType": {
+        "options": [
+          {
+            "type": {
+              "isArray": false,
+              "name": "boolean"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "end",
+      "typeParameters": [],
+      "inputs": [
+        {
+          "name": "end",
+          "type": {
+            "options": [
+              {
+                "type": {
+                  "isArray": false,
+                  "name": "boolean"
+                }
+              }
+            ]
+          },
+          "optional": false,
+          "dotdot": false
+        }
+      ],
+      "outputType": {
+        "options": [
+          {
+            "type": {
+              "isArray": false,
+              "name": "FunctionResult"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "runAction",
+      "typeParameters": [],
+      "inputs": [
+        {
+          "name": "actionKey",
+          "type": {
+            "options": [
+              {
+                "type": {
+                  "isArray": false,
+                  "name": "string"
+                }
+              }
+            ]
+          },
+          "optional": false,
+          "dotdot": false
+        }
+      ],
+      "outputType": {
+        "options": [
+          {
+            "type": {
+              "isArray": false,
+              "name": "FunctionResult"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "moveCards",
+      "typeParameters": [],
+      "inputs": [
+        {
+          "name": "from",
+          "type": {
+            "options": [
+              {
+                "type": {
+                  "isArray": false,
+                  "name": "CardStack"
+                }
+              }
+            ]
+          },
+          "optional": false,
+          "dotdot": false
+        },
+        {
+          "name": "to",
+          "type": {
+            "options": [
+              {
+                "type": {
+                  "isArray": false,
+                  "name": "CardStack"
+                }
+              }
+            ]
+          },
+          "optional": false,
+          "dotdot": false
+        },
+        {
+          "name": "cards",
+          "type": {
+            "options": [
+              {
+                "type": {
+                  "isArray": true,
+                  "name": "Card"
+                }
+              }
+            ]
+          },
+          "optional": false,
+          "dotdot": false
+        }
+      ],
+      "outputType": {
+        "options": [
+          {
+            "type": {
+              "isArray": false,
+              "name": "FunctionResult"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "populate",
+      "typeParameters": [],
+      "inputs": [
+        {
+          "name": "stack",
+          "type": {
+            "options": [
+              {
+                "type": {
+                  "isArray": false,
+                  "name": "CardStack"
+                }
+              }
+            ]
+          },
+          "optional": false,
+          "dotdot": false
+        },
+        {
+          "name": "n",
+          "type": {
+            "options": [
+              {
+                "type": {
+                  "isArray": false,
+                  "name": "number"
+                }
+              }
+            ]
+          },
+          "optional": true,
+          "dotdot": false
+        }
+      ],
+      "outputType": {
+        "options": [
+          {
+            "type": {
+              "isArray": false,
+              "name": "FunctionResult"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "shuffle",
+      "typeParameters": [],
+      "inputs": [
+        {
+          "name": "stack",
+          "type": {
+            "options": [
+              {
+                "type": {
+                  "isArray": false,
+                  "name": "CardStack"
+                }
+              }
+            ]
+          },
+          "optional": false,
+          "dotdot": false
+        }
+      ],
+      "outputType": {
+        "options": [
+          {
+            "type": {
+              "isArray": false,
+              "name": "FunctionResult"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "cardType",
+      "typeParameters": [],
+      "inputs": [
+        {
+          "name": "typeKey",
+          "type": {
+            "options": [
+              {
+                "type": {
+                  "isArray": false,
+                  "name": "string"
+                }
+              }
+            ]
+          },
+          "optional": false,
+          "dotdot": false
+        },
+        {
+          "name": "card",
+          "type": {
+            "options": [
+              {
+                "type": {
+                  "isArray": false,
+                  "name": "Card"
+                }
+              }
+            ]
+          },
+          "optional": false,
+          "dotdot": false
+        }
+      ],
+      "outputType": {
+        "options": [
+          {
+            "type": {
+              "isArray": false,
+              "name": "string"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "addCardStackTargets",
+      "typeParameters": [],
+      "inputs": [
+        {
+          "name": "options",
+          "type": {
+            "options": [
+              {
+                "type": {
+                  "isArray": true,
+                  "name": "GameOption"
+                }
+              }
+            ]
+          },
+          "optional": false,
+          "dotdot": false
+        },
+        {
+          "name": "targets",
+          "type": {
+            "options": [
+              {
+                "type": {
+                  "isArray": true,
+                  "name": "CardStack"
+                }
+              }
+            ]
+          },
+          "optional": false,
+          "dotdot": false
+        }
+      ],
+      "outputType": {
+        "options": [
+          {
+            "type": {
+              "isArray": true,
+              "name": "GameOption"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "cardOptions",
+      "typeParameters": [],
+      "inputs": [
+        {
+          "name": "cards",
+          "type": {
+            "options": [
+              {
+                "type": {
+                  "isArray": true,
+                  "name": "Card"
+                }
+              }
+            ]
+          },
+          "optional": false,
+          "dotdot": false
+        },
+        {
+          "name": "filter",
+          "type": {
+            "options": [
+              {
+                "function": {
+                  "name": "",
+                  "typeParameters": [],
+                  "inputs": [
+                    {
+                      "name": "cards",
+                      "type": {
+                        "options": [
+                          {
+                            "type": {
+                              "isArray": true,
+                              "name": "Card"
+                            }
+                          }
+                        ]
+                      },
+                      "optional": false,
+                      "dotdot": false
+                    }
+                  ],
+                  "outputType": {
+                    "options": [
+                      {
+                        "type": {
+                          "isArray": false,
+                          "name": "boolean"
+                        }
+                      }
+                    ]
+                  }
+                }
+              }
+            ]
+          },
+          "optional": false,
+          "dotdot": false
+        },
+        {
+          "name": "action",
+          "type": {
+            "options": [
+              {
+                "function": {
+                  "name": "",
+                  "typeParameters": [],
+                  "inputs": [
+                    {
+                      "name": "cards",
+                      "type": {
+                        "options": [
+                          {
+                            "type": {
+                              "isArray": true,
+                              "name": "Card"
+                            }
+                          }
+                        ]
+                      },
+                      "optional": false,
+                      "dotdot": false
+                    }
+                  ],
+                  "outputType": {
+                    "options": [
+                      {
+                        "type": {
+                          "isArray": false,
+                          "name": "FunctionResult"
+                        }
+                      }
+                    ]
+                  }
+                }
+              }
+            ]
+          },
+          "optional": false,
+          "dotdot": false
+        }
+      ],
+      "outputType": {
+        "options": [
+          {
+            "type": {
+              "isArray": true,
+              "name": "GameOption"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "choose",
+      "typeParameters": [],
+      "inputs": [
+        {
+          "name": "player",
+          "type": {
+            "options": [
+              {
+                "type": {
+                  "isArray": false,
+                  "name": "Player"
+                }
+              }
+            ]
+          },
+          "optional": false,
+          "dotdot": false
+        },
+        {
+          "name": "options",
+          "type": {
+            "options": [
+              {
+                "type": {
+                  "isArray": true,
+                  "name": "GameOption"
+                }
+              }
+            ]
+          },
+          "optional": false,
+          "dotdot": false
+        },
+        {
+          "name": "onEmpty",
+          "type": {
+            "options": [
+              {
+                "type": {
+                  "isArray": false,
+                  "name": "GameOption"
+                }
+              }
+            ]
+          },
+          "optional": true,
+          "dotdot": false
+        }
+      ],
+      "outputType": {
+        "options": [
+          {
+            "type": {
+              "isArray": false,
+              "name": "FunctionResult"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "map",
+      "typeParameters": [
+        "T",
+        "T2"
+      ],
+      "inputs": [
+        {
+          "name": "a",
+          "type": {
+            "options": [
+              {
+                "type": {
+                  "isArray": true,
+                  "name": "T"
+                }
+              }
+            ]
+          },
+          "optional": false,
+          "dotdot": false
+        },
+        {
+          "name": "f",
+          "type": {
+            "options": [
+              {
+                "function": {
+                  "name": "",
+                  "typeParameters": [
+                    "T",
+                    "T2"
+                  ],
+                  "inputs": [
+                    {
+                      "name": "o",
+                      "type": {
+                        "options": [
+                          {
+                            "type": {
+                              "isArray": false,
+                              "name": "T"
+                            }
+                          }
+                        ]
+                      },
+                      "optional": false,
+                      "dotdot": false
+                    }
+                  ],
+                  "outputType": {
+                    "options": [
+                      {
+                        "type": {
+                          "isArray": false,
+                          "name": "T2"
+                        }
+                      }
+                    ]
+                  }
+                }
+              }
+            ]
+          },
+          "optional": false,
+          "dotdot": false
+        }
+      ],
+      "outputType": {
+        "options": [
+          {
+            "type": {
+              "isArray": true,
+              "name": "T2"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "length",
+      "typeParameters": [
+        "T"
+      ],
+      "inputs": [
+        {
+          "name": "a",
+          "type": {
+            "options": [
+              {
+                "type": {
+                  "isArray": true,
+                  "name": "T"
+                }
+              }
+            ]
+          },
+          "optional": false,
+          "dotdot": false
+        }
+      ],
+      "outputType": {
+        "options": [
+          {
+            "type": {
+              "isArray": false,
+              "name": "number"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "first",
+      "typeParameters": [
+        "T"
+      ],
+      "inputs": [
+        {
+          "name": "obs",
+          "type": {
+            "options": [
+              {
+                "type": {
+                  "isArray": true,
+                  "name": "T"
+                }
+              }
+            ]
+          },
+          "optional": false,
+          "dotdot": false
+        }
+      ],
+      "outputType": {
+        "options": [
+          {
+            "type": {
+              "isArray": false,
+              "name": "T"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "add",
+      "typeParameters": [
+        "T"
+      ],
+      "inputs": [
+        {
+          "name": "obs",
+          "type": {
+            "options": [
+              {
+                "type": {
+                  "isArray": false,
+                  "name": "T"
+                }
+              }
+            ]
+          },
+          "optional": false,
+          "dotdot": true
+        }
+      ],
+      "outputType": {
+        "options": [
+          {
+            "type": {
+              "isArray": false,
+              "name": "T"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "max",
+      "typeParameters": [
+        "T"
+      ],
+      "inputs": [
+        {
+          "name": "obs",
+          "type": {
+            "options": [
+              {
+                "type": {
+                  "isArray": false,
+                  "name": "T"
+                }
+              }
+            ]
+          },
+          "optional": false,
+          "dotdot": true
+        }
+      ],
+      "outputType": {
+        "options": [
+          {
+            "type": {
+              "isArray": false,
+              "name": "T"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "min",
+      "typeParameters": [
+        "T"
+      ],
+      "inputs": [
+        {
+          "name": "obs",
+          "type": {
+            "options": [
+              {
+                "type": {
+                  "isArray": false,
+                  "name": "T"
+                }
+              }
+            ]
+          },
+          "optional": false,
+          "dotdot": true
+        }
+      ],
+      "outputType": {
+        "options": [
+          {
+            "type": {
+              "isArray": false,
+              "name": "T"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "eq",
+      "typeParameters": [
+        "T"
+      ],
+      "inputs": [
+        {
+          "name": "obs",
+          "type": {
+            "options": [
+              {
+                "type": {
+                  "isArray": false,
+                  "name": "T"
+                }
+              }
+            ]
+          },
+          "optional": false,
+          "dotdot": true
+        }
+      ],
+      "outputType": {
+        "options": [
+          {
+            "type": {
+              "isArray": false,
+              "name": "boolean"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "leq",
+      "typeParameters": [
+        "T"
+      ],
+      "inputs": [
+        {
+          "name": "obs",
+          "type": {
+            "options": [
+              {
+                "type": {
+                  "isArray": false,
+                  "name": "T"
+                }
+              }
+            ]
+          },
+          "optional": false,
+          "dotdot": true
+        }
+      ],
+      "outputType": {
+        "options": [
+          {
+            "type": {
+              "isArray": false,
+              "name": "boolean"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "or",
+      "typeParameters": [],
+      "inputs": [
+        {
+          "name": "obs",
+          "type": {
+            "options": [
+              {
+                "type": {
+                  "isArray": false,
+                  "name": "boolean"
+                }
+              }
+            ]
+          },
+          "optional": false,
+          "dotdot": true
+        }
+      ],
+      "outputType": {
+        "options": [
+          {
+            "type": {
+              "isArray": false,
+              "name": "boolean"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "and",
+      "typeParameters": [],
+      "inputs": [
+        {
+          "name": "obs",
+          "type": {
+            "options": [
+              {
+                "type": {
+                  "isArray": false,
+                  "name": "boolean"
+                }
+              }
+            ]
+          },
+          "optional": false,
+          "dotdot": true
+        }
+      ],
+      "outputType": {
+        "options": [
+          {
+            "type": {
+              "isArray": false,
+              "name": "boolean"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "concat",
+      "typeParameters": [
+        "T"
+      ],
+      "inputs": [
+        {
+          "name": "obs",
+          "type": {
+            "options": [
+              {
+                "type": {
+                  "isArray": true,
+                  "name": "T"
+                }
+              }
+            ]
+          },
+          "optional": false,
+          "dotdot": true
+        }
+      ],
+      "outputType": {
+        "options": [
+          {
+            "type": {
+              "isArray": true,
+              "name": "T"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "if",
+      "typeParameters": [
+        "T"
+      ],
+      "inputs": [
+        {
+          "name": "condition",
+          "type": {
+            "options": [
+              {
+                "type": {
+                  "isArray": false,
+                  "name": "boolean"
+                }
+              }
+            ]
+          },
+          "optional": false,
+          "dotdot": false
+        },
+        {
+          "name": "yes",
+          "type": {
+            "options": [
+              {
+                "type": {
+                  "isArray": false,
+                  "name": "T"
+                }
+              }
+            ]
+          },
+          "optional": false,
+          "dotdot": false
+        },
+        {
+          "name": "no",
+          "type": {
+            "options": [
+              {
+                "type": {
+                  "isArray": false,
+                  "name": "T"
+                }
+              }
+            ]
+          },
+          "optional": true,
+          "dotdot": false
+        }
+      ],
+      "outputType": {
+        "options": [
+          {
+            "type": {
+              "isArray": false,
+              "name": "T"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "ToArray",
+      "typeParameters": [
+        "T"
+      ],
+      "inputs": [
+        {
+          "name": "obs",
+          "type": {
+            "options": [
+              {
+                "type": {
+                  "isArray": false,
+                  "name": "T"
+                }
+              }
+            ]
+          },
+          "optional": false,
+          "dotdot": true
+        }
+      ],
+      "outputType": {
+        "options": [
+          {
+            "type": {
+              "isArray": true,
+              "name": "T"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "sequential",
+      "typeParameters": [],
+      "inputs": [
+        {
+          "name": "obs",
+          "type": {
+            "options": [
+              {
+                "type": {
+                  "isArray": false,
+                  "name": "FunctionResult"
+                }
+              }
+            ]
+          },
+          "optional": false,
+          "dotdot": true
+        }
+      ],
+      "outputType": {
+        "options": [
+          {
+            "type": {
+              "isArray": false,
+              "name": "FunctionResult"
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

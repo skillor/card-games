@@ -1,6 +1,7 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { environment } from 'src/environments/environment';
+import { CreateGameComponent } from './pages/create-game/create-game.component';
 import { DebugComponent } from './pages/debug/debug.component';
 import { HomeComponent } from './pages/home/home.component';
 import { LobbyComponent } from './pages/lobby/lobby.component';
@@ -13,6 +14,7 @@ const routes: Routes = [
   {component: PlayComponent, path: 'play/:game'},
   {component: PlayComponent, path: 'play/:game/:id'},
   {component: DebugComponent, path: 'debug/:game'},
+  {component: CreateGameComponent, path: 'create-game'},
   {path: '**', redirectTo: '/home'},
 ];
 

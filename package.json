@@ -6,7 +6,8 @@
     "start": "ng serve",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
-    "test": "ng test"
+    "test": "ng test",
+    "game-logic": "ts-node-esm scripts/parse-game-logic.mts src/app/shared/games/game-logic.ts src/assets/game-logic.json"
   },
   "private": true,
   "dependencies": {
@@ -19,7 +20,10 @@
     "@angular/platform-browser-dynamic": "^14.2.0",
     "@angular/router": "^14.2.0",
     "daisyui": "^2.46.0",
+    "flume": "github:skillor/flume#dist",
     "peerjs": "^1.4.7",
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2",
     "rxjs": "~7.5.0",
     "seedrandom": "^3.0.5",
     "tslib": "^2.3.0",
@@ -30,6 +34,8 @@
     "@angular/cli": "~14.2.5",
     "@angular/compiler-cli": "^14.2.0",
     "@types/jasmine": "~4.0.0",
+    "@types/react": "^17.0.2",
+    "@types/react-dom": "^17.0.2",
     "@types/seedrandom": "^3.0.4",
     "autoprefixer": "^10.4.13",
     "jasmine-core": "~4.3.0",

@@ -9,6 +9,7 @@ import { GameOption } from './game-option';
 import { GameState } from './game-state';
 import { AnimationService } from '../animation/animation.service';
 import { CardStack } from './card-stack';
+import { FunctionHead, GameLogicHead } from './game-logic';
 
 @Injectable()
 export class GamesService {
@@ -20,6 +21,10 @@ export class GamesService {
     private animationService: AnimationService,
     private sanitizer: DomSanitizer,
     ) {}
+
+  getGameLogicHead(): Observable<GameLogicHead> {
+    return this.http.get<GameLogicHead>('assets/game-logic.json');
+  }
 
   getGamePath(gameId: string): string {
     return 'assets/games/' + gameId;
