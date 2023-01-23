@@ -3,10 +3,10 @@
     "string",
     "number",
     "boolean",
+    "FunctionResult",
     "CardStack",
     "Player",
     "Variable",
-    "FunctionResult",
     "Card",
     "GameOption"
   ],
@@ -105,6 +105,39 @@
             "type": {
               "isArray": false,
               "name": "boolean"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "ToFunctionResult",
+      "typeParameters": [
+        "T"
+      ],
+      "inputs": [
+        {
+          "name": "x",
+          "type": {
+            "options": [
+              {
+                "type": {
+                  "isArray": false,
+                  "name": "T"
+                }
+              }
+            ]
+          },
+          "optional": false,
+          "dotdot": false
+        }
+      ],
+      "outputType": {
+        "options": [
+          {
+            "type": {
+              "isArray": false,
+              "name": "FunctionResult"
             }
           }
         ]
@@ -801,6 +834,63 @@
           {
             "type": {
               "isArray": true,
+              "name": "GameOption"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "textOption",
+      "typeParameters": [],
+      "inputs": [
+        {
+          "name": "text",
+          "type": {
+            "options": [
+              {
+                "type": {
+                  "isArray": false,
+                  "name": "string"
+                }
+              }
+            ]
+          },
+          "optional": false,
+          "dotdot": false
+        },
+        {
+          "name": "action",
+          "type": {
+            "options": [
+              {
+                "function": {
+                  "name": "",
+                  "typeParameters": [],
+                  "inputs": [],
+                  "outputType": {
+                    "options": [
+                      {
+                        "type": {
+                          "isArray": false,
+                          "name": "FunctionResult"
+                        }
+                      }
+                    ]
+                  }
+                }
+              }
+            ]
+          },
+          "optional": false,
+          "dotdot": false
+        }
+      ],
+      "outputType": {
+        "options": [
+          {
+            "type": {
+              "isArray": false,
               "name": "GameOption"
             }
           }

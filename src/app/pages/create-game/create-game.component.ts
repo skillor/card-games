@@ -3,6 +3,7 @@ import { Colors, Controls, FlumeConfig, NodeEditor } from 'flume';
 import { ConnectionMap, Connections, InputData, NodeMap, PortType, PortTypeBuilder } from 'flume/dist/types';
 import { createRef } from 'react';
 import { FileService } from 'src/app/shared/file/file.service';
+import { Game } from 'src/app/shared/games/game';
 import { FunctionHead, GameLogicHead, TypeHead } from 'src/app/shared/games/game-logic';
 import { GamesService } from 'src/app/shared/games/games.service';
 import { Node, parse } from './code-parser';
@@ -168,6 +169,14 @@ export class CreateGameComponent implements OnInit {
 
   compile() {
     console.log(this.resolveRootNode(this.config.ref.current.getNodes()));
+  }
+
+  run() {
+    let game = new Game({cards:{},name:'',playerStacks:{},globalStacks:{},gameActions:{},gamePhases:{},variables:{},startPhase:''});
+    game.createGameState([]);
+    game.runFunction(this.resolveRootNode(this.config.ref.current.getNodes())).subscribe((r) => {
+      console.log(r);
+    });
   }
 
   save() {

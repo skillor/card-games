@@ -55,6 +55,10 @@ export class GameLogic {
     return x.pipe(map((x) => !!x));
   }
 
+  ToFunctionResult<T>(x: Observable<T>): Observable<FunctionResult> {
+    return x;
+  }
+
   getStack(id: Observable<string>, player: Observable<Player> | undefined): Observable<CardStack> {
     if (player !== undefined) return combineLatest([id, player]).pipe(switchMap(([id, player]) => of(player.stacks[id])));
     return id.pipe(switchMap((id) => of(this.game.gameState!.stacks[id])));
