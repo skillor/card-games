@@ -1,7 +1,7 @@
 game.if(
-  game.leq(game.length(game.cards(game.getStack(of('draw')))), game.max(of(1), game.ToNumber(game.getVariable(of('7counter'))))),
+  game.lessEquals(game.length(game.getCardsOfCardStack(game.getCardStack(of('draw')))), game.max(of(1), game.ToNumber(game.getGameVariable(of('7counter'))))),
   game.sequential(
-    game.moveCards(game.getStack(of('main')), game.getStack(of('draw')), game.bottomCards(game.getStack(of('main')), game.add(game.length(game.cards(game.getStack(of('main')))), of(-1)))),
-    game.shuffle(game.getStack(of('draw'))),
+    game.moveCards(game.getCardStack(of('main')), game.getCardStack(of('draw')), game.bottomCards(game.getCardStack(of('main')), game.add(game.length(game.getCardsOfCardStack(game.getCardStack(of('main')))), of(-1)))),
+    game.shuffleStack(game.getCardStack(of('draw'))),
   )
 )

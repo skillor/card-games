@@ -1,19 +1,19 @@
 game.if(
-  game.eq(of(true), game.ToBoolean(game.getVariable(of('playedA')))),
+  game.equals(of(true), game.ToBoolean(game.getGameVariable(of('playedA')))),
   game.sequential(
-    game.setVariable(of('playedA'), of(false)),
+    game.setGameVariable(of('playedA'), of(false)),
     game.setPhase(game.nextPlayer(), of('main'))
   ),
   game.sequential(
     game.runAction(of('refill')),
     game.if(
-      game.eq(of(0), game.ToNumber(game.getVariable(of('7counter')))),
+      game.equals(of(0), game.ToNumber(game.getGameVariable(of('7counter')))),
       game.runAction(of('choice')),
       game.runAction(of('7choice')),
     ),
     game.if(
-      game.eq(of(0), game.length(game.cards(game.getStack(of('hand'), game.currentPlayer())))),
-      game.end(of(true)),
+      game.equals(of(0), game.length(game.getCardsOfCardStack(game.getCardStack(of('hand'), game.currentPlayer())))),
+      game.endGame(of(true)),
       game.setPhase(game.nextPlayer(), of('main')),
     )
   ),

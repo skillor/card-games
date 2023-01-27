@@ -59,16 +59,16 @@ export class GameLogic {
     return x;
   }
 
-  getStack(id: Observable<string>, player: Observable<Player> | undefined): Observable<CardStack> {
+  getCardStack(id: Observable<string>, player: Observable<Player> | undefined): Observable<CardStack> {
     if (player !== undefined) return combineLatest([id, player]).pipe(switchMap(([id, player]) => of(player.stacks[id])));
     return id.pipe(switchMap((id) => of(this.game.gameState!.stacks[id])));
   }
 
-  getVariable(id: Observable<string>): Observable<Variable> {
+  getGameVariable(id: Observable<string>): Observable<Variable> {
     return id.pipe(switchMap((id) => of(this.game.gameState!.variables[id].value)));
   }
 
-  setVariable<T>(id: Observable<string>, value: Observable<T>): Observable<FunctionResult> {
+  setGameVariable<T>(id: Observable<string>, value: Observable<T>): Observable<FunctionResult> {
     return combineLatest([id, value]).pipe(
       switchMap(([id, value]) => {
         this.game.gameState!.variables[id].value = value;
@@ -107,37 +107,24 @@ export class GameLogic {
     }));
   }
 
-  cards(stack: Observable<CardStack>): Observable<Card[]> {
-    return stack.pipe(switchMap((stack) => {
-      return of(stack.cards);
+  getCardsOfCardStack(stack: Observable<CardStack>): Observable<Card[]> {
+    return stack.pipe(map((stack) => {
+      console.log(stack.cards);
+      return stack.cards;
     }));
   }
 
   topCards(stack: Observable<CardStack>, n: Observable<number> | undefined): Observable<Card[]> {
     if (n === undefined) n = of(1);
-    return combineLatest([n, stack]).pipe(switchMap(([n, stack]) => {
-      return of(stack.cards.slice(-n));
-    }));
+    return n.pipe(switchMap((n) => this.slice(this.getCardsOfCardStack(stack), of(-n), undefined)));
   }
 
   bottomCards(stack: Observable<CardStack>, n: Observable<number> | undefined): Observable<Card[]> {
-    if (n === undefined) n = of(1);
-    return combineLatest([n, stack]).pipe(switchMap(([n, stack]) => of(stack.cards.slice(0, n))));
+    return this.slice(this.getCardsOfCardStack(stack), of(0), n ? n : of(1));
   }
 
-  empty<T>(a: Observable<T[]>): Observable<boolean> {
-    return a.pipe(switchMap((a) => of(a.length === 0)));
-  }
-
-  end(end: Observable<boolean>): Observable<FunctionResult> {
-    return end.pipe(switchMap((end) => {
-      this.game.gameState!.ended = end;
-      return of(end);
-    }));
-  }
-
-  runAction(actionKey: Observable<string>): Observable<FunctionResult> {
-    return actionKey.pipe(switchMap((actionKey) => {
+  runAction(actionName: Observable<string>): Observable<FunctionResult> {
+    return actionName.pipe(switchMap((actionKey) => {
       if (actionKey in this.game.gameState!.actionCounter) this.game.gameState!.actionCounter[actionKey] += 1;
       else this.game.gameState!.actionCounter[actionKey] = 1;
       const action = this.game.gameType.gameActions[actionKey];
@@ -166,9 +153,9 @@ export class GameLogic {
     }));
   }
 
-  populate(stack: Observable<CardStack>, n: Observable<number> | undefined): Observable<FunctionResult> {
-    if (n === undefined) n = of(1);
-    return combineLatest([n, stack]).pipe(switchMap(([n, stack]) => {
+  fillStack(stack: Observable<CardStack>, repeat: Observable<number> | undefined): Observable<FunctionResult> {
+    if (repeat === undefined) repeat = of(1);
+    return combineLatest([repeat, stack]).pipe(switchMap(([n, stack]) => {
       const animations: Animation[] = [];
       stack.cards = [];
       for (let cardType of Object.values(this.game.gameType.cards!)) {
@@ -187,7 +174,7 @@ export class GameLogic {
     }));
   }
 
-  shuffle(stack: Observable<CardStack>): Observable<FunctionResult> {
+  shuffleStack(stack: Observable<CardStack>): Observable<FunctionResult> {
     return stack.pipe(switchMap((stack) => {
       const animations: Animation[] = [];
       for (let i = stack.cards.length - 1; i > 0; i--) {
@@ -207,8 +194,8 @@ export class GameLogic {
     }));
   }
 
-  cardType(typeKey: Observable<string>, card: Observable<Card>): Observable<string> {
-    return combineLatest([typeKey, card]).pipe(
+  cardType(typeName: Observable<string>, card: Observable<Card>): Observable<string> {
+    return combineLatest([typeName, card]).pipe(
       switchMap(([typeKey, card]) => {
         return of(card.cardType.types[typeKey]);
       }),
@@ -223,6 +210,10 @@ export class GameLogic {
       }
       return of(options);
     }));
+  }
+
+  emptyOptions(): Observable<GameOption[]> {
+    return of([]);
   }
 
   textOption(text: Observable<string>, action: Observable<() => Observable<FunctionResult>>): Observable<GameOption> {
@@ -253,20 +244,41 @@ export class GameLogic {
     }));
   }
 
-  map<T, T2>(a: Observable<T[]>, f: Observable<(o: Observable<T>) => Observable<T2>>): Observable<T2[]> {
-    return combineLatest([a, f]).pipe(switchMap(([a, f]) => combineLatest(a.map((x) => f(of(x))))));
+  isEmpty<T>(array: Observable<T[]>): Observable<boolean> {
+    return array.pipe(switchMap((a) => of(a.length === 0)));
   }
 
-  length<T>(a: Observable<T[]>): Observable<number> {
-    return a.pipe(switchMap((a) => of(a.length)));
+  endGame(end: Observable<boolean>): Observable<FunctionResult> {
+    return end.pipe(switchMap((end) => {
+      this.game.gameState!.ended = end;
+      return of(end);
+    }));
   }
 
-  first<T>(obs: Observable<T[]>): Observable<T> {
-    return obs.pipe(switchMap((v) => of(v[0])));
+  map<T, T2>(array: Observable<T[]>, func: Observable<(o: Observable<T>) => Observable<T2>>): Observable<T2[]> {
+    return combineLatest([array, func]).pipe(switchMap(([a, f]) => combineLatest(a.map((x) => f(of(x))))));
   }
 
-  add<T>(...obs: Observable<T>[]): Observable<T> {
-    return combineLatest(obs).pipe(
+  length<T>(array: Observable<T[]>): Observable<number> {
+    return array.pipe(switchMap((a) => of(a.length)));
+  }
+
+  slice<T>(array: Observable<T[]>, start: Observable<number> | undefined, end: Observable<number> | undefined): Observable<T[]> {
+    let startO: Observable<number | undefined>;
+    if (start === undefined) startO = of(undefined);
+    else startO = start;
+    let endO: Observable<number | undefined>;
+    if (end === undefined) endO = of(undefined);
+    else endO = end;
+    return combineLatest([array, startO, endO]).pipe(switchMap(([array, startO, endO]) => of(array.slice(startO, endO))));
+  }
+
+  first<T>(array: Observable<T[]>): Observable<T> {
+    return array.pipe(switchMap((v) => of(v[0])));
+  }
+
+  add<T>(...summand: Observable<T>[]): Observable<T> {
+    return combineLatest(summand).pipe(
       switchMap((v: any[]) => {
         let c = v[0];
         for (let i=1; i<v.length; i++) {
@@ -277,8 +289,8 @@ export class GameLogic {
     );
   }
 
-  max<T>(...obs: Observable<T>[]): Observable<T> {
-    return combineLatest(obs).pipe(
+  max<T>(...value: Observable<T>[]): Observable<T> {
+    return combineLatest(value).pipe(
       switchMap((v: any[]) => {
         let c = v[0];
         for (let i=1; i<v.length; i++) {
@@ -289,8 +301,8 @@ export class GameLogic {
     );
   }
 
-  min<T>(...obs: Observable<T>[]): Observable<T> {
-    return combineLatest(obs).pipe(
+  min<T>(...value: Observable<T>[]): Observable<T> {
+    return combineLatest(value).pipe(
       switchMap((v: any[]) => {
         let c = v[0];
         for (let i=1; i<v.length; i++) {
@@ -301,8 +313,8 @@ export class GameLogic {
     );
   }
 
-  eq<T>(...obs: Observable<T>[]): Observable<boolean> {
-    return combineLatest(obs).pipe(
+  equals<T>(...value: Observable<T>[]): Observable<boolean> {
+    return combineLatest(value).pipe(
       switchMap((v: any[]) => {
         let c = v[0];
         for (let i=1; i<v.length; i++) {
@@ -313,8 +325,8 @@ export class GameLogic {
     );
   }
 
-  leq<T>(...obs: Observable<T>[]): Observable<boolean> {
-    return combineLatest(obs).pipe(
+  lessEquals<T>(...value: Observable<T>[]): Observable<boolean> {
+    return combineLatest(value).pipe(
       switchMap((v: any[]) => {
         for (let i=1; i<v.length; i++) {
           if (v[i-1] > v[i]) return of(false);
@@ -324,24 +336,24 @@ export class GameLogic {
     );
   }
 
-  or(...obs: Observable<boolean>[]): Observable<boolean> {
-    return combineLatest(obs).pipe(
+  or(...value: Observable<boolean>[]): Observable<boolean> {
+    return combineLatest(value).pipe(
       switchMap((v: boolean[]) => {
         return of(v.find((b) => b) !== undefined);
       })
     );
   }
 
-  and(...obs: Observable<boolean>[]): Observable<boolean> {
-    return combineLatest(obs).pipe(
+  and(...value: Observable<boolean>[]): Observable<boolean> {
+    return combineLatest(value).pipe(
       switchMap((v: boolean[]) => {
         return of(v.find((b) => !b) === undefined);
       })
     );
   }
 
-  concat<T>(...obs: Observable<T[]>[]): Observable<T[]> {
-    return combineLatest(obs).pipe(
+  concat<T>(...array: Observable<T[]>[]): Observable<T[]> {
+    return combineLatest(array).pipe(
       switchMap((v: any[]) => of([].concat.apply([], v))),
     );
   }
@@ -354,17 +366,17 @@ export class GameLogic {
     }));
   }
 
-  ToArray<T>(...obs: Observable<T>[]): Observable<T[]> {
-    if (obs.length == 1) return obs[0].pipe(map((x)=>[x]));
-    return obs[0].pipe(
-      concatMap((v) => this.ToArray(...obs.slice(1)).pipe(map((x) => [v, ...x])),
+  ToArray<T>(...value: Observable<T>[]): Observable<T[]> {
+    if (value.length == 1) return value[0].pipe(map((x)=>[x]));
+    return value[0].pipe(
+      concatMap((v) => this.ToArray(...value.slice(1)).pipe(map((x) => [v, ...x])),
     ));
   }
 
-  sequential(...obs: Observable<FunctionResult>[]): Observable<FunctionResult> {
-    if (obs.length == 1) return obs[0];
-    return obs[0].pipe(
-      concatMap((v) => this.sequential(...obs.slice(1)),
+  sequential(...func: Observable<FunctionResult>[]): Observable<FunctionResult> {
+    if (func.length == 1) return func[0];
+    return func[0].pipe(
+      concatMap((v) => this.sequential(...func.slice(1)),
     ));
   }
 }

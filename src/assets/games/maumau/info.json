@@ -25,7 +25,7 @@
     "choice": {"actionFile": "actions/choice.js"},
     "7choice": {"actionFile": "actions/7choice.js"},
     "playJ": {"actionFile": "actions/playJ.js"},
-    "play7": {"action": "game.setVariable(of('7counter'), game.add(game.ToNumber(game.getVariable(of('7counter'))), of(2)))"},
-    "playA": {"action": "game.setVariable(of('playedA'), of(true))"}
+    "play7": {"action": "game.setGameVariable(of('7counter'), game.add(game.ToNumber(game.getGameVariable(of('7counter'))), of(2)))"},
+    "playA": {"action": "game.setGameVariable(of('playedA'), of(true))"}
   }
 }

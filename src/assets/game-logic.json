@@ -144,7 +144,7 @@
       }
     },
     {
-      "name": "getStack",
+      "name": "getCardStack",
       "typeParameters": [],
       "inputs": [
         {
@@ -190,7 +190,7 @@
       }
     },
     {
-      "name": "getVariable",
+      "name": "getGameVariable",
       "typeParameters": [],
       "inputs": [
         {
@@ -221,7 +221,7 @@
       }
     },
     {
-      "name": "setVariable",
+      "name": "setGameVariable",
       "typeParameters": [
         "T"
       ],
@@ -393,7 +393,7 @@
       }
     },
     {
-      "name": "cards",
+      "name": "getCardsOfCardStack",
       "typeParameters": [],
       "inputs": [
         {
@@ -516,75 +516,11 @@
       }
     },
     {
-      "name": "empty",
-      "typeParameters": [
-        "T"
-      ],
-      "inputs": [
-        {
-          "name": "a",
-          "type": {
-            "options": [
-              {
-                "type": {
-                  "isArray": true,
-                  "name": "T"
-                }
-              }
-            ]
-          },
-          "optional": false,
-          "dotdot": false
-        }
-      ],
-      "outputType": {
-        "options": [
-          {
-            "type": {
-              "isArray": false,
-              "name": "boolean"
-            }
-          }
-        ]
-      }
-    },
-    {
-      "name": "end",
-      "typeParameters": [],
-      "inputs": [
-        {
-          "name": "end",
-          "type": {
-            "options": [
-              {
-                "type": {
-                  "isArray": false,
-                  "name": "boolean"
-                }
-              }
-            ]
-          },
-          "optional": false,
-          "dotdot": false
-        }
-      ],
-      "outputType": {
-        "options": [
-          {
-            "type": {
-              "isArray": false,
-              "name": "FunctionResult"
-            }
-          }
-        ]
-      }
-    },
-    {
       "name": "runAction",
       "typeParameters": [],
       "inputs": [
         {
-          "name": "actionKey",
+          "name": "actionName",
           "type": {
             "options": [
               {
@@ -672,7 +608,7 @@
       }
     },
     {
-      "name": "populate",
+      "name": "fillStack",
       "typeParameters": [],
       "inputs": [
         {
@@ -691,7 +627,7 @@
           "dotdot": false
         },
         {
-          "name": "n",
+          "name": "repeat",
           "type": {
             "options": [
               {
@@ -718,7 +654,7 @@
       }
     },
     {
-      "name": "shuffle",
+      "name": "shuffleStack",
       "typeParameters": [],
       "inputs": [
         {
@@ -753,7 +689,7 @@
       "typeParameters": [],
       "inputs": [
         {
-          "name": "typeKey",
+          "name": "typeName",
           "type": {
             "options": [
               {
@@ -829,6 +765,21 @@
           "dotdot": false
         }
       ],
+      "outputType": {
+        "options": [
+          {
+            "type": {
+              "isArray": true,
+              "name": "GameOption"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "emptyOptions",
+      "typeParameters": [],
+      "inputs": [],
       "outputType": {
         "options": [
           {
@@ -1074,6 +1025,70 @@
       }
     },
     {
+      "name": "isEmpty",
+      "typeParameters": [
+        "T"
+      ],
+      "inputs": [
+        {
+          "name": "array",
+          "type": {
+            "options": [
+              {
+                "type": {
+                  "isArray": true,
+                  "name": "T"
+                }
+              }
+            ]
+          },
+          "optional": false,
+          "dotdot": false
+        }
+      ],
+      "outputType": {
+        "options": [
+          {
+            "type": {
+              "isArray": false,
+              "name": "boolean"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "endGame",
+      "typeParameters": [],
+      "inputs": [
+        {
+          "name": "end",
+          "type": {
+            "options": [
+              {
+                "type": {
+                  "isArray": false,
+                  "name": "boolean"
+                }
+              }
+            ]
+          },
+          "optional": false,
+          "dotdot": false
+        }
+      ],
+      "outputType": {
+        "options": [
+          {
+            "type": {
+              "isArray": false,
+              "name": "FunctionResult"
+            }
+          }
+        ]
+      }
+    },
+    {
       "name": "map",
       "typeParameters": [
         "T",
@@ -1081,7 +1096,7 @@
       ],
       "inputs": [
         {
-          "name": "a",
+          "name": "array",
           "type": {
             "options": [
               {
@@ -1096,7 +1111,7 @@
           "dotdot": false
         },
         {
-          "name": "f",
+          "name": "func",
           "type": {
             "options": [
               {
@@ -1159,7 +1174,7 @@
       ],
       "inputs": [
         {
-          "name": "a",
+          "name": "array",
           "type": {
             "options": [
               {
@@ -1186,13 +1201,76 @@
       }
     },
     {
+      "name": "slice",
+      "typeParameters": [
+        "T"
+      ],
+      "inputs": [
+        {
+          "name": "array",
+          "type": {
+            "options": [
+              {
+                "type": {
+                  "isArray": true,
+                  "name": "T"
+                }
+              }
+            ]
+          },
+          "optional": false,
+          "dotdot": false
+        },
+        {
+          "name": "start",
+          "type": {
+            "options": [
+              {
+                "type": {
+                  "isArray": false,
+                  "name": "number"
+                }
+              }
+            ]
+          },
+          "optional": true,
+          "dotdot": false
+        },
+        {
+          "name": "end",
+          "type": {
+            "options": [
+              {
+                "type": {
+                  "isArray": false,
+                  "name": "number"
+                }
+              }
+            ]
+          },
+          "optional": true,
+          "dotdot": false
+        }
+      ],
+      "outputType": {
+        "options": [
+          {
+            "type": {
+              "isArray": true,
+              "name": "T"
+            }
+          }
+        ]
+      }
+    },
+    {
       "name": "first",
       "typeParameters": [
         "T"
       ],
       "inputs": [
         {
-          "name": "obs",
+          "name": "array",
           "type": {
             "options": [
               {
@@ -1225,7 +1303,7 @@
       ],
       "inputs": [
         {
-          "name": "obs",
+          "name": "summand",
           "type": {
             "options": [
               {
@@ -1258,7 +1336,7 @@
       ],
       "inputs": [
         {
-          "name": "obs",
+          "name": "value",
           "type": {
             "options": [
               {
@@ -1291,7 +1369,7 @@
       ],
       "inputs": [
         {
-          "name": "obs",
+          "name": "value",
           "type": {
             "options": [
               {
@@ -1318,13 +1396,13 @@
       }
     },
     {
-      "name": "eq",
+      "name": "equals",
       "typeParameters": [
         "T"
       ],
       "inputs": [
         {
-          "name": "obs",
+          "name": "value",
           "type": {
             "options": [
               {
@@ -1351,13 +1429,13 @@
       }
     },
     {
-      "name": "leq",
+      "name": "lessEquals",
       "typeParameters": [
         "T"
       ],
       "inputs": [
         {
-          "name": "obs",
+          "name": "value",
           "type": {
             "options": [
               {
@@ -1388,7 +1466,7 @@
       "typeParameters": [],
       "inputs": [
         {
-          "name": "obs",
+          "name": "value",
           "type": {
             "options": [
               {
@@ -1419,7 +1497,7 @@
       "typeParameters": [],
       "inputs": [
         {
-          "name": "obs",
+          "name": "value",
           "type": {
             "options": [
               {
@@ -1452,7 +1530,7 @@
       ],
       "inputs": [
         {
-          "name": "obs",
+          "name": "array",
           "type": {
             "options": [
               {
@@ -1548,7 +1626,7 @@
       ],
       "inputs": [
         {
-          "name": "obs",
+          "name": "value",
           "type": {
             "options": [
               {
@@ -1579,7 +1657,7 @@
       "typeParameters": [],
       "inputs": [
         {
-          "name": "obs",
+          "name": "func",
           "type": {
             "options": [
               {

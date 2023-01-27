@@ -16,15 +16,17 @@ import { Node, parse } from './code-parser';
 })
 export class CreateGameComponent implements OnInit {
   NodeEditor = NodeEditor;
-  config: any = {};
+  config: any = {
+    style: {height: "50%"},
+  };
   logic?: GameLogicHead;
   game: {
     // gamePhaseMaps: {[key: string]: NodeMap},
-    gameActionMaps: {[key: string]: NodeMap},
+    gameActionMaps: { [key: string]: NodeMap },
   } = {
-    // gamePhaseMaps: {},
-    gameActionMaps: {},
-  };
+      // gamePhaseMaps: {},
+      gameActionMaps: {},
+    };
 
   activeNodes?: NodeMap;
 
@@ -33,10 +35,10 @@ export class CreateGameComponent implements OnInit {
   activeAction = '';
   changeActiveName = '';
 
-  private simpleTypes: {[key: string]: any} = {
-    'string': {label: 'String', control: Controls.text},
-    'number': {label: 'Number', control: Controls.number},
-    'boolean': {label: 'True/False', control: Controls.checkbox},
+  private simpleTypes: { [key: string]: any } = {
+    'string': { label: 'String', control: Controls.text },
+    'number': { label: 'Number', control: Controls.number },
+    'boolean': { label: 'True/False', control: Controls.checkbox },
   };
 
   createDefaultAction(): void {
@@ -50,13 +52,13 @@ export class CreateGameComponent implements OnInit {
   }
 
   setNodes(nodes: NodeMap): void {
-    this.config = {...this.config, nodes: nodes};
+    this.config = { ...this.config, nodes: nodes };
   }
 
   addAction(): void {
     let i = 1;
-    while ('action'+i in this.game.gameActionMaps) i++;
-    let name = 'action'+i;
+    while ('action' + i in this.game.gameActionMaps) i++;
+    let name = 'action' + i;
     this.game.gameActionMaps[name] = {}
     this.changeAction(name);
   }
@@ -92,22 +94,32 @@ export class CreateGameComponent implements OnInit {
     this.createDefaultAction();
   }
 
-  connectNodes(nodeMap: NodeMap, output: string | undefined, input: string | undefined): void {
+  connectNodes(nodeMap: NodeMap, output: {id: string, portName: string} | undefined, input: string | undefined): void {
     if (!input || !output) return;
-    let n = Object.keys(nodeMap[input].connections.inputs).length;
-    let inputName = this.config.nodeTypes[nodeMap[input].type].inputs({}, {
+    const n = Object.keys(nodeMap[input].connections.inputs).length;
+    const inputName = this.config.nodeTypes[nodeMap[input].type].inputs({}, {
       inputs: nodeMap[input].connections.inputs,
       outputs: nodeMap[input].connections.outputs,
     }, {})[n].name;
-    let outputName = this.config.nodeTypes[nodeMap[output].type].outputs({}, {
-      inputs: nodeMap[output].connections.inputs,
-      outputs: nodeMap[output].connections.outputs,
-    }, {}).slice(-1)[0].name;
-    nodeMap[input].connections.inputs[inputName] = [{nodeId: output, portName: outputName}];
-    nodeMap[output].connections.outputs[outputName] = [{nodeId: input, portName: inputName}];
+    const outputs = this.config.nodeTypes[nodeMap[output.id].type].outputs({}, {
+      inputs: nodeMap[output.id].connections.inputs,
+      outputs: nodeMap[output.id].connections.outputs,
+    }, {});
+    let outputName: string | undefined;
+    for (let o of outputs) {
+      if (o.name.split(':')[0] == output.portName) outputName = o.name;
+    }
+    if (outputName === undefined) throw new Error('invalid connection');
+
+    const nodeInputs = nodeMap[input].connections.inputs;
+    const nodeOutputs = nodeMap[output.id].connections.outputs;
+    if (!(inputName in nodeInputs)) nodeInputs[inputName] = [];
+    if (!(outputName in nodeOutputs)) nodeOutputs[outputName] = [];
+    nodeInputs[inputName].push({ nodeId: output.id, portName: outputName });
+    nodeOutputs[outputName].push({ nodeId: input, portName: inputName });
   }
 
-  createNodeMap(nodeMap: NodeMap, node: Node, x: number, y: number, connectTo: string | undefined): number {
+  createNodeMap(nodeMap: NodeMap, node: Node, x: number, y: number, connectTo: {id: string, portName: string} | undefined, connectNames: { [name: string]: {id: string, portName: string} }): { id: string, height: number } {
     let id: string;
     while (true) {
       id = Math.random().toString(36).substring(2);
@@ -115,9 +127,9 @@ export class CreateGameComponent implements OnInit {
     }
 
     if (node.type == 'string' || node.type == 'number' || node.type == 'boolean') {
-      const inputData: InputData = {};
-      inputData[node.type] = {};
-      inputData[node.type][node.type] = node.value;
+      const inputData: InputData = {
+        [node.type]: { [node.type]: node.value }
+      };
       nodeMap[id] = {
         id: id,
         x: x,
@@ -130,8 +142,25 @@ export class CreateGameComponent implements OnInit {
         },
         inputData: inputData,
       };
-      this.connectNodes(nodeMap, id, connectTo);
-      return 220;
+      this.connectNodes(nodeMap, {id, portName: ''}, connectTo?.id);
+      return { id, height: 220 };
+    }
+    if (node.type == 'name') {
+      let output = connectNames[node.value];
+      if (output) {
+        this.connectNodes(nodeMap, output, connectTo?.id);
+      }
+      return { id, height: 220 };
+    }
+    if (node.type == 'arrow') {
+      let newConnectNames = {...connectNames};
+      if (connectTo && node.args) {
+        for (let arg of node.args) {
+          newConnectNames[arg.value] = {id: connectTo.id, portName: connectTo.portName + '_' + arg.value};
+        }
+      }
+      let r = this.createNodeMap(nodeMap, node.body!, x, y, connectTo, newConnectNames);
+      return r;
     }
     if (node.type == 'game') {
       let fname = node.name!.value!;
@@ -148,11 +177,15 @@ export class CreateGameComponent implements OnInit {
         inputData: {},
       };
       let startY = y;
-      for (let i=0; i<node.args!.length; i++) {
-        y += this.createNodeMap(nodeMap, node.args![i], x - 250, y, id);
+      let f = this.logic?.functions.find((x) => x.name == fname);
+      if (!f) throw new Error('unknown game function ' + fname);
+      for (let i = 0; i < node.args!.length; i++) {
+        let portName = '';
+        if (f.inputs[i]?.type.options[0].function) portName = f.inputs[i].name;
+        y += this.createNodeMap(nodeMap, node.args![i], x - 250, y, {id, portName: portName}, connectNames).height;
       }
-      this.connectNodes(nodeMap, id, connectTo);
-      return y - startY;
+      this.connectNodes(nodeMap, {id, portName: ''}, connectTo?.id);
+      return { id, height: Math.max(220, y - startY) };
     }
     throw new Error('unknown node type ' + node.type);
   }
@@ -160,9 +193,25 @@ export class CreateGameComponent implements OnInit {
   parse() {
     this.fileService.loadFile('.js').subscribe((content) => {
       this.addAction();
-      const nodes = this.getNodes();
-      // console.log(nodes);
-      this.createNodeMap(nodes, parse(content), -250, 0, Object.keys(nodes)[0]);
+      const rootNodeId = Math.random().toString(36).substring(2);
+      const nodes = {
+        [rootNodeId]: {
+          "x": 0,
+          "y": 0,
+          "type": "GameLogic",
+          "width": 200,
+          "connections": {
+            "inputs": {},
+            "outputs": {},
+          },
+          "inputData": {
+            "FunctionResult": {}
+          },
+          "root": true,
+          "id": rootNodeId
+        }
+      };
+      this.createNodeMap(nodes, parse(content), -250, 0, {id: rootNodeId, portName: 'FunctionResult'}, {});
       this.setNodes(nodes);
     });
   }
@@ -172,7 +221,7 @@ export class CreateGameComponent implements OnInit {
   }
 
   run() {
-    let game = new Game({cards:{},name:'',playerStacks:{},globalStacks:{},gameActions:{},gamePhases:{},variables:{},startPhase:''});
+    let game = new Game({ cards: {}, name: '', playerStacks: {}, globalStacks: {}, gameActions: {}, gamePhases: {}, variables: {}, startPhase: '' });
     game.createGameState([]);
     game.runFunction(this.resolveRootNode(this.config.ref.current.getNodes())).subscribe((r) => {
       console.log(r);
@@ -210,7 +259,7 @@ export class CreateGameComponent implements OnInit {
     throw new Error('root node not found');
   }
 
-  resolveNode(nodes: NodeMap, startId: string, depth: number, endFunction: {id: string, prefix: string} | undefined = undefined): string | undefined {
+  resolveNode(nodes: NodeMap, startId: string, depth: number, endFunction: { id: string, prefix: string } | undefined = undefined): string | undefined {
     if (!this.logic) throw new Error('unknown logic');
     const node = nodes[startId];
     const simple = this.simpleTypes[node.type];
@@ -222,7 +271,7 @@ export class CreateGameComponent implements OnInit {
 
     if (endFunction && startId == endFunction.id) {
       for (let output of Object.keys(node.connections.outputs)) {
-        if (output.startsWith(endFunction.prefix)) return output.substring(endFunction.prefix.length);
+        if (output.startsWith(endFunction.prefix)) return output.substring(endFunction.prefix.length).split(':')[0];
       }
       throw new Error('failed loop');
     }
@@ -238,7 +287,7 @@ export class CreateGameComponent implements OnInit {
             const con = node.connections.inputs[iName];
             if (con.length != 1) throw new Error(`input ${iName} of ${f.name} can only have one connection, has ${con.length}`);
             if (fin.type.options[0].function) {
-              endFunction = {id: startId, prefix: fin.name + '_'};
+              endFunction = { id: startId, prefix: fin.name + '_' };
               let t = this.resolveNode(nodes, con[0].nodeId, depth + 1, endFunction);
               if (t) inputs.push(`of((${fin.type.options[0].function.inputs.map((i) => i.name).join(',')})=>${t})`);
               continue;
@@ -249,15 +298,23 @@ export class CreateGameComponent implements OnInit {
         }
         continue;
       }
-      const con = node.connections.inputs[fin.name];
-      if (!con && !fin.optional) throw new Error(`input ${fin.name} of ${f.name} is not connected`);
+      let con = node.connections.inputs[fin.name];
+      if (!con && !fin.optional) {
+        for (let iName of Object.keys(node.connections.inputs)) {
+          if (iName.startsWith(fin.name + ':')) {
+            con = node.connections.inputs[iName];
+            break
+          }
+        }
+        if (!con) throw new Error(`input ${fin.name} of ${f.name} is not connected`);
+      }
       if (!con) {
         inputs.push('undefined');
         continue;
       }
       if (con.length != 1) throw new Error(`input ${fin.name} of ${f.name} can only have one connection, has ${con.length}`);
       if (fin.type.options[0].function) {
-        endFunction = {id: startId, prefix: fin.name + '_'};
+        endFunction = { id: startId, prefix: fin.name + '_' };
         let t = this.resolveNode(nodes, con[0].nodeId, depth + 1, endFunction);
         if (t) inputs.push(`of((${fin.type.options[0].function.inputs.map((i) => i.name).join(',')})=>${t})`);
         continue;
@@ -266,10 +323,8 @@ export class CreateGameComponent implements OnInit {
       if (t) inputs.push(t);
     }
     let inputS = '';
-    if (inputs.length > 0) {
-      if (this.prettyPrintIndent > 0) inputS = `\n${inputs.map((i) => i.split('\n').map((l) => l = ' '.repeat(this.prettyPrintIndent) + l).join('\n')).join(',\n')}\n`;
-      else inputS = inputs.join(',');
-    }
+    if (inputs.length > 0 && this.prettyPrintIndent > 0) inputS = `\n${inputs.map((i) => i.split('\n').map((l) => l = ' '.repeat(this.prettyPrintIndent) + l).join('\n')).join(',\n')}\n`;
+    else inputS = inputs.join(',');
     return `game.${node.type}(${inputS})`;
   }
 
@@ -294,16 +349,20 @@ export class CreateGameComponent implements OnInit {
     return s;
   }
 
-  createGenericMap(f: FunctionHead, inputs: ConnectionMap, outputs: ConnectionMap, genericMap: {[key: string]: string}, prefix: string): {[key: string]: string} {
+  createGenericMap(f: FunctionHead, inputs: ConnectionMap, outputs: ConnectionMap, genericMap: { [key: string]: string }, prefix: string): { [key: string]: string } {
     for (let option of f.outputType.options) {
       if (option.type && f.typeParameters.includes(option.type.name)) {
         if (!(option.type.name in genericMap)) {
           genericMap[option.type.name] = 'Generic';
         }
-        if (prefix && inputs[prefix] && inputs[prefix].length > 0) {
-          let type = inputs[prefix][0].portName.split(':')[1];
-          if (option.type.isArray) type = type.substring(0, type.length-2);
-          genericMap[option.type.name] = type;
+        if (prefix) {
+          for (let iName of Object.keys(inputs)) {
+            if (iName.startsWith(prefix + ':')) {
+              let type = inputs[iName][0].portName.split(':')[1];
+              if (option.type.isArray) type = type.substring(0, type.length - 2);
+              genericMap[option.type.name] = type;
+            }
+          }
         }
       }
     }
@@ -324,7 +383,7 @@ export class CreateGameComponent implements OnInit {
             for (let iName of Object.keys(inputs)) {
               if (iName.startsWith(prefixedName) && inputs[iName].length > 0) {
                 let type = inputs[iName][0].portName.split(':')[1];
-                if (option.type.isArray) type = type.substring(0, type.length-2);
+                if (option.type.isArray) type = type.substring(0, type.length - 2);
                 genericMap[option.type.name] = type;
                 break;
               }
@@ -333,7 +392,7 @@ export class CreateGameComponent implements OnInit {
             for (let iName of Object.keys(inputs)) {
               if (iName.startsWith(prefixedName) && inputs[iName].length > 0) {
                 let type = inputs[iName][0].portName.split(':')[1];
-                if (option.type.isArray) type = type.substring(0, type.length-2);
+                if (option.type.isArray) type = type.substring(0, type.length - 2);
                 genericMap[option.type.name] = type;
               }
             }
@@ -347,23 +406,25 @@ export class CreateGameComponent implements OnInit {
   createPorts(
     f: FunctionHead,
     connections: Connections,
-    ports: {[portType: string]: PortTypeBuilder},
+    ports: { [portType: string]: PortTypeBuilder },
     inputPorts: PortType[],
     outputPorts: PortType[],
     prefix: string,
-    genericMap: {[key: string]: string},
-    ): void {
+    genericMap: { [key: string]: string },
+  ): void {
 
     for (let input of f.inputs) {
       for (let option of input.type.options) {
         if (option.type) {
           let portTypeName = genericMap[option.type.name];
           if (portTypeName) {
-            portTypeName +=  option.type.isArray ? '[]' : '';
+            portTypeName += option.type.isArray ? '[]' : '';
           } else {
             portTypeName = this.typeToString(option.type);
           }
           let name = this.prefixString(input.name, prefix);
+          let suffix = '';
+          if (prefix) suffix = ':' + portTypeName;
           if (input.dotdot) {
             let i = 0;
             let inputNames = Object.keys(connections.inputs);
@@ -372,20 +433,19 @@ export class CreateGameComponent implements OnInit {
                 let x = +iName.substring(name.length);
                 if (isNaN(x)) continue;
                 i = Math.max(x, i);
-                inputPorts.push(ports[portTypeName]({noControls: true, name: iName, label: name + ':' + portTypeName}));
+                inputPorts.push(ports[portTypeName]({ noControls: true, name: iName, label: name + ':' + portTypeName }));
               }
             }
-            inputPorts.push(ports[portTypeName]({noControls: true, name: name + (i + 1), label: name + ':' + portTypeName}));
+            inputPorts.push(ports[portTypeName]({ noControls: true, name: name + (i + 1) + suffix, label: name + ':' + portTypeName }));
             continue;
           }
-          inputPorts.push(ports[portTypeName]({noControls: true, name: name, label: name + (input.optional ? '?' : '') + ':' + portTypeName}));
+          inputPorts.push(ports[portTypeName]({ noControls: true, name: name + suffix, label: name + (input.optional ? '?' : '') + ':' + portTypeName }));
           continue;
         }
 
         if (option.function) {
           // TODO: switch inputs / outputs for some reason?
-          if (prefix == '') this.createPorts(option.function, connections, ports, outputPorts, inputPorts, this.prefixString(input.name, prefix), genericMap);
-          else this.createPorts(option.function, connections, ports, inputPorts, outputPorts, this.prefixString(input.name, prefix), genericMap);
+          this.createPorts(option.function, connections, ports, outputPorts, inputPorts, this.prefixString(input.name, prefix), genericMap);
           continue;
         }
         console.error('not implemented');
@@ -404,9 +464,9 @@ export class CreateGameComponent implements OnInit {
         let portName = prefix + ':' + portTypeName;
         if (prefix != '') {
           name = prefix + ':' + name;
-          portName = prefix;
+          portName = prefix + ':' + this.typeToString(option.type);
         }
-        outputPorts.push(ports[portTypeName]({noControls: true, label: name, name: portName}));
+        outputPorts.push(ports[portTypeName]({ noControls: true, label: name, name: portName }));
         continue;
       }
       console.error('not implemented');
@@ -423,7 +483,7 @@ export class CreateGameComponent implements OnInit {
         let controls: any[] = [];
         let simpleType = this.simpleTypes[name];
         if (simpleType) {
-          controls.push(simpleType.control({name: name, label: simpleType.label}));
+          controls.push(simpleType.control({ name: name, label: simpleType.label }));
         }
 
         let color = colors[this.hashString(name) % colors.length];
@@ -449,9 +509,9 @@ export class CreateGameComponent implements OnInit {
             type: name,
             label: name.substring(0, 1).toUpperCase() + name.substring(1),
             description: 'Creates a ' + name,
-            inputs: ports => [ports[name]({name: name, label:' ', hidePort: true})],
+            inputs: ports => [ports[name]({ name: name, label: ' ', hidePort: true })],
             // we need to use this as a function
-            outputs: ports => () => [ports[name]({name: ':' + name, label: name})],
+            outputs: ports => () => [ports[name]({ name: ':' + name, label: name })],
           });
         }
       }

@@ -16,3 +16,7 @@ html, body {
   -ms-overflow-style: none;  /* IE and Edge */
   scrollbar-width: none;  /* Firefox */
 }
+
+.flume-container > [data-flume-component="stage"] {
+  height: auto;
+}
