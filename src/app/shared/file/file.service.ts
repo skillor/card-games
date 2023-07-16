@@ -6,15 +6,22 @@ export class FileService {
 
   constructor() { }
 
-  saveFile(filename: string, content: string): void {
+  saveFileUrl(filename: string, url: string): void {
     const a = document.createElement('a');
-    const file = new Blob([content], {type: 'text/plain'});
-    a.href = URL.createObjectURL(file);
+    a.href = url;
     a.download = filename;
     a.click();
   }
 
-  loadFile(accept: string): Observable<string> {
+  saveFileBlob(filename: string, blob: Blob): void {
+    return this.saveFileUrl(filename, URL.createObjectURL(blob));
+  }
+
+  saveFile(filename: string, content: string): void {
+    return this.saveFileBlob(filename, new Blob([content], {type: 'text/plain'}));
+  }
+
+  loadRawFile(accept: string): Observable<File> {
     const input = document.createElement('input');
     input.type = 'file';
     input.style.display = 'none';
@@ -28,12 +35,24 @@ export class FileService {
 
     let obs = fromEvent(input, 'change').pipe(
       first(),
-      switchMap(() => {
+      map(() => {
         if (!input.files || input.files.length == 0 || input.files[0].size > 250000000 || !FileReader) {
           onEnd();
           throw Error('something went wrong');
         }
         const file = input.files[0];
+        onEnd();
+        return file;
+      }),
+    );
+
+    input.click();
+    return obs;
+  }
+
+  loadFile(accept: string): Observable<string> {
+    return this.loadRawFile(accept).pipe(
+      switchMap((file) => {
         const fileReader = new FileReader();
 
         let obs = fromEvent(fileReader, 'load').pipe(
@@ -41,7 +60,6 @@ export class FileService {
           map((event) => {
             let e: any = event;
             if (!e.target || !e.target.result) {
-              onEnd();
               throw new Error('something went wrong');
             }
             let content: string;
@@ -55,10 +73,7 @@ export class FileService {
         )
         fileReader.readAsText(file);
         return obs;
-      }),
-    );
-
-    input.click();
-    return obs;
+      })
+    )
   }
 }

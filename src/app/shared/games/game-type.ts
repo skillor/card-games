@@ -16,13 +16,14 @@ export interface GameVariable {
 }
 
 export interface GameType {
-  id?: string;
-  cards?: {[key: string]: CardType};
+  id: string;
   name: string;
+  defaultCard: CardType;
+  cards: {[key: string]: CardType};
   globalStacks: {[key: string]: CardStackType};
   playerStacks: {[key: string]: CardStackType};
   variables: {[key: string]: GameVariable};
   startPhase: string;
   gamePhases: {[key: string]: GamePhase};
-  gameActions: {[key: string]: GameAction};
+  gameActions: {[key: string]: string};
 }

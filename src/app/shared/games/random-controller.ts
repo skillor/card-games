@@ -12,14 +12,8 @@ export class RandomController extends Controller {
     this.random = seedrandom(seed);
   }
 
-  override choose(gameState: GameState, nextGameStates: GameState[], options: Observable<GameOption[]>, onEmpty: Observable<GameOption>): Observable<GameOption> {
-    return combineLatest([options, onEmpty]).pipe(
-      map(([options, onEmpty]) => {
-        if (options.length === 0) {
-          return onEmpty;
-        }
-        return options[Math.floor(this.random() * options.length)];
-      })
-    );
+  override async choose(gameState: GameState, options: GameOption[], onEmpty: GameOption): Promise<GameOption> {
+    if (options.length == 0) return onEmpty;
+    return options[Math.floor(this.random() * options.length)];
   }
 }

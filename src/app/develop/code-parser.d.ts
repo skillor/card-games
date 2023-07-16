@@ -1,0 +1,12 @@
+export function parse(input: string, options?: any): Node;
+export type Node = BooleanNode | NumberNode | StringNode | ArrayNode | ObjectNode | ArrowNode | FunctionNode | ArgNode | NameNode;
+export type BooleanNode = {type: 'boolean', value: boolean};
+export type NumberNode = {type: 'number', value: number};
+export type StringNode = {type: 'string', value: string};
+export type ArrayNode = {type: 'array', value: any[]};
+export type ObjectNode = {type: 'object', value: {[key: string | number]: any}};
+export type ArrowNode = {type: 'arrow', args: NameArgNode[], body: Node, comments: string[]};
+export type FunctionNode = {type: 'func', args: ArgNode[], name: NameNode, comments: string[]};
+export type ArgNode = {type: 'arg', arg: Node, comments: string[]};
+export type NameArgNode = {type: 'arg', arg: NameNode, comments: string[]};
+export type NameNode = {type: 'name', value: string};

@@ -10,8 +10,8 @@
     "Card",
     "GameOption"
   ],
-  "functions": [
-    {
+  "functions": {
+    "ToString": {
       "name": "ToString",
       "typeParameters": [
         "T"
@@ -44,7 +44,7 @@
         ]
       }
     },
-    {
+    "ToNumber": {
       "name": "ToNumber",
       "typeParameters": [
         "T"
@@ -77,7 +77,7 @@
         ]
       }
     },
-    {
+    "ToBoolean": {
       "name": "ToBoolean",
       "typeParameters": [
         "T"
@@ -110,7 +110,40 @@
         ]
       }
     },
-    {
+    "ToArray": {
+      "name": "ToArray",
+      "typeParameters": [
+        "T"
+      ],
+      "inputs": [
+        {
+          "name": "value",
+          "type": {
+            "options": [
+              {
+                "type": {
+                  "isArray": false,
+                  "name": "T"
+                }
+              }
+            ]
+          },
+          "optional": false,
+          "dotdot": true
+        }
+      ],
+      "outputType": {
+        "options": [
+          {
+            "type": {
+              "isArray": true,
+              "name": "T"
+            }
+          }
+        ]
+      }
+    },
+    "ToFunctionResult": {
       "name": "ToFunctionResult",
       "typeParameters": [
         "T"
@@ -143,8 +176,8 @@
         ]
       }
     },
-    {
-      "name": "getCardStack",
+    "getPlayerCardStack": {
+      "name": "getPlayerCardStack",
       "typeParameters": [],
       "inputs": [
         {
@@ -189,7 +222,38 @@
         ]
       }
     },
-    {
+    "getGlobalCardStack": {
+      "name": "getGlobalCardStack",
+      "typeParameters": [],
+      "inputs": [
+        {
+          "name": "id",
+          "type": {
+            "options": [
+              {
+                "type": {
+                  "isArray": false,
+                  "name": "string"
+                }
+              }
+            ]
+          },
+          "optional": false,
+          "dotdot": false
+        }
+      ],
+      "outputType": {
+        "options": [
+          {
+            "type": {
+              "isArray": false,
+              "name": "CardStack"
+            }
+          }
+        ]
+      }
+    },
+    "getGameVariable": {
       "name": "getGameVariable",
       "typeParameters": [],
       "inputs": [
@@ -220,7 +284,7 @@
         ]
       }
     },
-    {
+    "setGameVariable": {
       "name": "setGameVariable",
       "typeParameters": [
         "T"
@@ -268,7 +332,7 @@
         ]
       }
     },
-    {
+    "players": {
       "name": "players",
       "typeParameters": [],
       "inputs": [],
@@ -283,7 +347,7 @@
         ]
       }
     },
-    {
+    "randomChoice": {
       "name": "randomChoice",
       "typeParameters": [
         "T"
@@ -316,7 +380,7 @@
         ]
       }
     },
-    {
+    "currentPlayer": {
       "name": "currentPlayer",
       "typeParameters": [],
       "inputs": [],
@@ -331,7 +395,7 @@
         ]
       }
     },
-    {
+    "nextPlayer": {
       "name": "nextPlayer",
       "typeParameters": [],
       "inputs": [],
@@ -346,7 +410,7 @@
         ]
       }
     },
-    {
+    "setPhase": {
       "name": "setPhase",
       "typeParameters": [],
       "inputs": [
@@ -392,7 +456,7 @@
         ]
       }
     },
-    {
+    "getCardsOfCardStack": {
       "name": "getCardsOfCardStack",
       "typeParameters": [],
       "inputs": [
@@ -423,7 +487,7 @@
         ]
       }
     },
-    {
+    "topCards": {
       "name": "topCards",
       "typeParameters": [],
       "inputs": [
@@ -469,7 +533,7 @@
         ]
       }
     },
-    {
+    "bottomCards": {
       "name": "bottomCards",
       "typeParameters": [],
       "inputs": [
@@ -515,7 +579,7 @@
         ]
       }
     },
-    {
+    "runAction": {
       "name": "runAction",
       "typeParameters": [],
       "inputs": [
@@ -546,7 +610,7 @@
         ]
       }
     },
-    {
+    "moveCards": {
       "name": "moveCards",
       "typeParameters": [],
       "inputs": [
@@ -581,7 +645,7 @@
           "dotdot": false
         },
         {
-          "name": "cards",
+          "name": "fromCards",
           "type": {
             "options": [
               {
@@ -592,7 +656,7 @@
               }
             ]
           },
-          "optional": false,
+          "optional": true,
           "dotdot": false
         }
       ],
@@ -607,7 +671,83 @@
         ]
       }
     },
-    {
+    "swapCards": {
+      "name": "swapCards",
+      "typeParameters": [],
+      "inputs": [
+        {
+          "name": "from",
+          "type": {
+            "options": [
+              {
+                "type": {
+                  "isArray": false,
+                  "name": "CardStack"
+                }
+              }
+            ]
+          },
+          "optional": false,
+          "dotdot": false
+        },
+        {
+          "name": "to",
+          "type": {
+            "options": [
+              {
+                "type": {
+                  "isArray": false,
+                  "name": "CardStack"
+                }
+              }
+            ]
+          },
+          "optional": false,
+          "dotdot": false
+        },
+        {
+          "name": "fromCards",
+          "type": {
+            "options": [
+              {
+                "type": {
+                  "isArray": true,
+                  "name": "Card"
+                }
+              }
+            ]
+          },
+          "optional": true,
+          "dotdot": false
+        },
+        {
+          "name": "toCards",
+          "type": {
+            "options": [
+              {
+                "type": {
+                  "isArray": true,
+                  "name": "Card"
+                }
+              }
+            ]
+          },
+          "optional": true,
+          "dotdot": false
+        }
+      ],
+      "outputType": {
+        "options": [
+          {
+            "type": {
+              "isArray": false,
+              "name": "FunctionResult"
+            }
+          }
+        ]
+      }
+    },
+    "fillStack": {
       "name": "fillStack",
       "typeParameters": [],
       "inputs": [
@@ -653,7 +793,7 @@
         ]
       }
     },
-    {
+    "shuffleStack": {
       "name": "shuffleStack",
       "typeParameters": [],
       "inputs": [
@@ -684,7 +824,7 @@
         ]
       }
     },
-    {
+    "cardType": {
       "name": "cardType",
       "typeParameters": [],
       "inputs": [
@@ -730,7 +870,7 @@
         ]
       }
     },
-    {
+    "addCardStackTargets": {
       "name": "addCardStackTargets",
       "typeParameters": [],
       "inputs": [
@@ -776,7 +916,7 @@
         ]
       }
     },
-    {
+    "emptyOptions": {
       "name": "emptyOptions",
       "typeParameters": [],
       "inputs": [],
@@ -791,7 +931,7 @@
         ]
       }
     },
-    {
+    "textOption": {
       "name": "textOption",
       "typeParameters": [],
       "inputs": [
@@ -848,7 +988,7 @@
         ]
       }
     },
-    {
+    "cardOptions": {
       "name": "cardOptions",
       "typeParameters": [],
       "inputs": [
@@ -860,48 +1000,6 @@
                 "type": {
                   "isArray": true,
                   "name": "Card"
-                }
-              }
-            ]
-          },
-          "optional": false,
-          "dotdot": false
-        },
-        {
-          "name": "filter",
-          "type": {
-            "options": [
-              {
-                "function": {
-                  "name": "",
-                  "typeParameters": [],
-                  "inputs": [
-                    {
-                      "name": "cards",
-                      "type": {
-                        "options": [
-                          {
-                            "type": {
-                              "isArray": true,
-                              "name": "Card"
-                            }
-                          }
-                        ]
-                      },
-                      "optional": false,
-                      "dotdot": false
-                    }
-                  ],
-                  "outputType": {
-                    "options": [
-                      {
-                        "type": {
-                          "isArray": false,
-                          "name": "boolean"
-                        }
-                      }
-                    ]
-                  }
                 }
               }
             ]
@@ -963,7 +1061,7 @@
         ]
       }
     },
-    {
+    "choose": {
       "name": "choose",
       "typeParameters": [],
       "inputs": [
@@ -1024,7 +1122,7 @@
         ]
       }
     },
-    {
+    "isEmpty": {
       "name": "isEmpty",
       "typeParameters": [
         "T"
@@ -1057,7 +1155,7 @@
         ]
       }
     },
-    {
+    "endGame": {
       "name": "endGame",
       "typeParameters": [],
       "inputs": [
@@ -1088,7 +1186,84 @@
         ]
       }
     },
-    {
+    "filter": {
+      "name": "filter",
+      "typeParameters": [
+        "T"
+      ],
+      "inputs": [
+        {
+          "name": "array",
+          "type": {
+            "options": [
+              {
+                "type": {
+                  "isArray": true,
+                  "name": "T"
+                }
+              }
+            ]
+          },
+          "optional": false,
+          "dotdot": false
+        },
+        {
+          "name": "filter",
+          "type": {
+            "options": [
+              {
+                "function": {
+                  "name": "",
+                  "typeParameters": [
+                    "T"
+                  ],
+                  "inputs": [
+                    {
+                      "name": "con",
+                      "type": {
+                        "options": [
+                          {
+                            "type": {
+                              "isArray": false,
+                              "name": "T"
+                            }
+                          }
+                        ]
+                      },
+                      "optional": false,
+                      "dotdot": false
+                    }
+                  ],
+                  "outputType": {
+                    "options": [
+                      {
+                        "type": {
+                          "isArray": false,
+                          "name": "boolean"
+                        }
+                      }
+                    ]
+                  }
+                }
+              }
+            ]
+          },
+          "optional": false,
+          "dotdot": false
+        }
+      ],
+      "outputType": {
+        "options": [
+          {
+            "type": {
+              "isArray": true,
+              "name": "T"
+            }
+          }
+        ]
+      }
+    },
+    "map": {
       "name": "map",
       "typeParameters": [
         "T",
@@ -1123,7 +1298,7 @@
                   ],
                   "inputs": [
                     {
-                      "name": "o",
+                      "name": "x",
                       "type": {
                         "options": [
                           {
@@ -1167,7 +1342,7 @@
         ]
       }
     },
-    {
+    "length": {
       "name": "length",
       "typeParameters": [
         "T"
@@ -1200,7 +1375,7 @@
         ]
       }
     },
-    {
+    "slice": {
       "name": "slice",
       "typeParameters": [
         "T"
@@ -1263,7 +1438,7 @@
         ]
       }
     },
-    {
+    "first": {
       "name": "first",
       "typeParameters": [
         "T"
@@ -1296,7 +1471,7 @@
         ]
       }
     },
-    {
+    "add": {
       "name": "add",
       "typeParameters": [
         "T"
@@ -1329,7 +1504,7 @@
         ]
       }
     },
-    {
+    "max": {
       "name": "max",
       "typeParameters": [
         "T"
@@ -1362,7 +1537,7 @@
         ]
       }
     },
-    {
+    "min": {
       "name": "min",
       "typeParameters": [
         "T"
@@ -1395,7 +1570,7 @@
         ]
       }
     },
-    {
+    "equals": {
       "name": "equals",
       "typeParameters": [
         "T"
@@ -1428,7 +1603,7 @@
         ]
       }
     },
-    {
+    "lessEquals": {
       "name": "lessEquals",
       "typeParameters": [
         "T"
@@ -1461,7 +1636,7 @@
         ]
       }
     },
-    {
+    "or": {
       "name": "or",
       "typeParameters": [],
       "inputs": [
@@ -1492,7 +1667,7 @@
         ]
       }
     },
-    {
+    "and": {
       "name": "and",
       "typeParameters": [],
       "inputs": [
@@ -1523,7 +1698,7 @@
         ]
       }
     },
-    {
+    "concat": {
       "name": "concat",
       "typeParameters": [
         "T"
@@ -1556,8 +1731,8 @@
         ]
       }
     },
-    {
-      "name": "if",
+    "iff": {
+      "name": "iff",
       "typeParameters": [
         "T"
       ],
@@ -1619,40 +1794,7 @@
         ]
       }
     },
-    {
-      "name": "ToArray",
-      "typeParameters": [
-        "T"
-      ],
-      "inputs": [
-        {
-          "name": "value",
-          "type": {
-            "options": [
-              {
-                "type": {
-                  "isArray": false,
-                  "name": "T"
-                }
-              }
-            ]
-          },
-          "optional": false,
-          "dotdot": true
-        }
-      ],
-      "outputType": {
-        "options": [
-          {
-            "type": {
-              "isArray": true,
-              "name": "T"
-            }
-          }
-        ]
-      }
-    },
-    {
+    "sequential": {
       "name": "sequential",
       "typeParameters": [],
       "inputs": [
@@ -1683,5 +1825,5 @@
         ]
       }
     }
-  ]
+  }
 }

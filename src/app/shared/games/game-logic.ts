@@ -1,15 +1,12 @@
-import { Observable, combineLatest, switchMap, of, map, concatMap, merge } from "rxjs";
-import { Animation } from "../animation/animation";
 import { Card } from "./card";
 import { CardStack } from "./card-stack";
 import { Game } from "./game";
 import { GameOption } from "./game-option";
-import { GameState } from "./game-state";
 import { Player } from "./player";
 
 export type GameLogicHead = {
   types: string[];
-  functions: FunctionHead[];
+  functions: {[key: string]: FunctionHead};
 }
 export type FunctionInputHead = {
   name: string,
@@ -38,345 +35,309 @@ export type FunctionHead = {
 export type FunctionResult = any;
 export type Variable = any;
 
+export class MCall<T> {
+  constructor(private d: () => Promise<T>) {
+  }
+
+  async call(): Promise<T> {
+    console.log('call1');
+    let t = await this.d();
+    console.log('call2', JSON.stringify(t));
+    return t;
+  }
+
+  then<T2>(c: (x: T) => Promise<T2>): MCall<T2> {
+    return new MCall<T2>(async () => await c(await this.call()));
+  }
+
+  switch<T2>(c: (x: T) => Promise<MCall<T2>>): MCall<T2> {
+    // return new Call(async () => (await c((await this.call()))).call());
+    return new MCall(async () => {
+      return await (<any>(await c((await this.call())))).call();
+    });
+    // return new Call(async () => <T2>0);
+  }
+
+  static all<T>(value: MCall<any>[]): MCall<T> {
+    return new MCall<any>(async () => {
+      const r = [];
+      for (const f of value) {
+        console.log('all1');
+        r.push(await f.call());
+        console.log('all2');
+      }
+      return r;
+    });
+  }
+
+
+}
+
 export class GameLogic {
   constructor(
     private game: Game,
   ) { }
 
-  ToString<T>(x: Observable<T>): Observable<string> {
-    return x.pipe(map((x) => ""+x));
+  of<T>(x: T): MCall<T> {
+    return new MCall(async () => x);
   }
 
-  ToNumber<T>(x: Observable<T>): Observable<number> {
-    return x.pipe(map((x) => +x));
+  ToString<T>(x: MCall<T>): MCall<string> {
+    return x.then(async y => String(y));
   }
 
-  ToBoolean<T>(x: Observable<T>): Observable<boolean> {
-    return x.pipe(map((x) => !!x));
+  ToNumber<T>(x: MCall<T>): MCall<number> {
+    return x.then(async y => Number(y));
   }
 
-  ToFunctionResult<T>(x: Observable<T>): Observable<FunctionResult> {
+  ToBoolean<T>(x: MCall<T>): MCall<boolean> {
+    return x.then(async y => Boolean(y));
+  }
+
+  ToArray<T>(...value: MCall<T>[]): MCall<T[]> {
+    return MCall.all(value);
+  }
+
+  ToFunctionResult<T>(x: MCall<T>): MCall<FunctionResult> {
     return x;
   }
 
-  getCardStack(id: Observable<string>, player: Observable<Player> | undefined): Observable<CardStack> {
-    if (player !== undefined) return combineLatest([id, player]).pipe(switchMap(([id, player]) => of(player.stacks[id])));
-    return id.pipe(switchMap((id) => of(this.game.gameState!.stacks[id])));
+  getPlayerCardStack(id: MCall<string>, player: MCall<Player> | undefined): MCall<CardStack> {
+    if (player === undefined) player = this.currentPlayer();
+    return MCall.all<[Player, string]>([player, id]).then(async ([p, i]) => p.stacks[i]);
   }
 
-  getGameVariable(id: Observable<string>): Observable<Variable> {
-    return id.pipe(switchMap((id) => of(this.game.gameState!.variables[id].value)));
+  getGlobalCardStack(id: MCall<string>): MCall<CardStack> {
+    return id.then(async i => this.game.gameState!.stacks[i]);
   }
 
-  setGameVariable<T>(id: Observable<string>, value: Observable<T>): Observable<FunctionResult> {
-    return combineLatest([id, value]).pipe(
-      switchMap(([id, value]) => {
-        this.game.gameState!.variables[id].value = value;
-        return of(true);
-      })
-    );
+  getGameVariable(id: MCall<string>): MCall<Variable> {
+    return id.then(async i => this.game.gameState!.variables[i].value);
   }
 
-  players(): Observable<Player[]> {
-    return of(
-      Object.values(this.game.gameState!.players)
-      .sort((a, b) => this.game.gameState!.playerOrder.indexOf(a.id) - this.game.gameState!.playerOrder.indexOf(b.id))
-    );
+  setGameVariable<T>(id: MCall<string>, value: MCall<T>): MCall<FunctionResult> {
+    return MCall.all<[string, T]>([id, value]).then(async ([i, v]) => this.game.gameState!.variables[i].value = v);
   }
 
-  randomChoice<T>(options: Observable<T[]>): Observable<T> {
-    return options.pipe(
-      switchMap((options) => of(options[Math.floor(options.length * this.game.random())])),
-    )
+  players(): MCall<Player[]> {
+    return new MCall(async () => Object.values(this.game.gameState!.players).sort((a, b) => this.game.gameState!.playerOrder.indexOf(a.id) - this.game.gameState!.playerOrder.indexOf(b.id)));
   }
 
-  currentPlayer(): Observable<Player> {
+  randomChoice<T>(options: MCall<T[]>): MCall<T> {
+    return options.then(async o => o[Math.floor(o.length * this.game.random())]);
+  }
+
+  currentPlayer(): MCall<Player> {
     const playerId = this.game.gameState!.playerOrder[this.game.gameState!.playersTurn];
-    return of(this.game.gameState!.players[playerId]);
+    return new MCall(async () => this.game.gameState!.players[playerId]);
   }
 
-  nextPlayer(): Observable<Player> {
-    return of(this.game.gameState!.players[this.game.gameState!.playerOrder[(this.game.gameState!.playersTurn + 1) % this.game.gameState!.playerOrder.length]]);
+  nextPlayer(): MCall<Player> {
+    return new MCall(async () => this.game.gameState!.players[this.game.gameState!.playerOrder[(this.game.gameState!.playersTurn + 1) % this.game.gameState!.playerOrder.length]]);
   }
 
-  setPhase(player: Observable<Player>, phase: Observable<string>): Observable<FunctionResult> {
-    return combineLatest([phase, player]).pipe(switchMap(([phase, player]) => {
-      this.game.gameState!.playersTurn = this.game.gameState!.playerOrder.indexOf(player.id);
-      this.game.gameState!.activePhase = phase;
-      return of(true);
-    }));
+  setPhase(player: MCall<Player>, phase: MCall<string>): MCall<FunctionResult> {
+    return MCall.all<[Player, string]>([player, phase]).then(async ([p, ph]) => {
+      this.game.gameState!.playersTurn = this.game.gameState!.playerOrder.indexOf(p.id);
+      this.game.gameState!.activePhase = ph;
+      return true;
+    });
   }
 
-  getCardsOfCardStack(stack: Observable<CardStack>): Observable<Card[]> {
-    return stack.pipe(map((stack) => {
-      console.log(stack.cards);
-      return stack.cards;
-    }));
+  getCardsOfCardStack(stack: MCall<CardStack>): MCall<Card[]> {
+    return stack.then(async s => s.cards);
   }
 
-  topCards(stack: Observable<CardStack>, n: Observable<number> | undefined): Observable<Card[]> {
-    if (n === undefined) n = of(1);
-    return n.pipe(switchMap((n) => this.slice(this.getCardsOfCardStack(stack), of(-n), undefined)));
+  topCards(stack: MCall<CardStack>, n: MCall<number> | undefined): MCall<Card[]> {
+    if (n === undefined) n = this.of(1);
+    return this.slice(this.getCardsOfCardStack(stack), n.then(async x => -x), undefined);
   }
 
-  bottomCards(stack: Observable<CardStack>, n: Observable<number> | undefined): Observable<Card[]> {
-    return this.slice(this.getCardsOfCardStack(stack), of(0), n ? n : of(1));
+  bottomCards(stack: MCall<CardStack>, n: MCall<number> | undefined): MCall<Card[]> {
+    return this.slice(this.getCardsOfCardStack(stack), this.of(0), n ? n : this.of(1));
   }
 
-  runAction(actionName: Observable<string>): Observable<FunctionResult> {
-    return actionName.pipe(switchMap((actionKey) => {
-      if (actionKey in this.game.gameState!.actionCounter) this.game.gameState!.actionCounter[actionKey] += 1;
-      else this.game.gameState!.actionCounter[actionKey] = 1;
-      const action = this.game.gameType.gameActions[actionKey];
-      if (!action || !action.action) return of(false);
-      return this.game.runFunction(action.action);
-    }));
+  runAction(actionName: MCall<string>): MCall<FunctionResult> {
+    return actionName.switch(async (a) => {
+      if (!a) return this.of(false);
+      return new MCall(() => this.game.runFunction(a));
+    });
   }
 
-  moveCards(from: Observable<CardStack>, to: Observable<CardStack>, cards: Observable<Card[]>): Observable<FunctionResult> {
-    return combineLatest([from, to, cards]).pipe(switchMap(([from, to, cards]) => {
-      for (let wCard of cards) {
-        let cardI = from.cards.findIndex((card) => card.id === wCard.id);
-        if (cardI === -1) continue;
-        let gs: GameState;
-        if (!this.game.skipMode) {
-          gs = JSON.parse(JSON.stringify(this.game.gameState));
-        }
-        let card = from.cards.splice(cardI, 1)[0];
-        to.cards.push(card);
-        if (!this.game.skipMode) {
-          gs!.animations.push({fromId: card.id, toId: to.id, targetId: card.id, type: 'fly', duration: 100, next: 50});
-          this.game.nextGameStates.push(gs!);
-        }
+  moveCards(from: MCall<CardStack>, to: MCall<CardStack>, fromCards: MCall<Card[]> | undefined = undefined): MCall<FunctionResult> {
+    if (fromCards === undefined) fromCards = from.then(async x => x.cards);
+    return MCall.all<[CardStack, CardStack, Card[]]>([from, to, fromCards]).then(async ([_from, _to, _fromCards]) => {
+      for (let c of _fromCards) {
+        const ci = _from.cards.findIndex((card) => card.id === c.id);
+        if (ci === -1) continue;
+        _from.cards.splice(ci, 1);
+        _to.cards.push(c);
       }
-      return of(true);
-    }));
+      return true;
+    });
   }
 
-  fillStack(stack: Observable<CardStack>, repeat: Observable<number> | undefined): Observable<FunctionResult> {
-    if (repeat === undefined) repeat = of(1);
-    return combineLatest([repeat, stack]).pipe(switchMap(([n, stack]) => {
-      const animations: Animation[] = [];
-      stack.cards = [];
+  swapCards(from: MCall<CardStack>, to: MCall<CardStack>, fromCards: MCall<Card[]> | undefined = undefined, toCards: MCall<Card[]> | undefined = undefined): MCall<FunctionResult> {
+    if (fromCards === undefined) fromCards = from.then(async x => x.cards);
+    if (toCards === undefined) toCards = to.then(async x => x.cards);
+
+    return MCall.all([this.moveCards(from, to, fromCards), this.moveCards(to, from, toCards)]);
+  }
+
+  fillStack(stack: MCall<CardStack>, repeat: MCall<number> | undefined): MCall<FunctionResult> {
+    if (repeat === undefined) repeat = this.of(1);
+
+    return MCall.all<[CardStack, number]>([stack, repeat]).then(async ([_stack, n]) => {
+      console.log('filling stack');
+      _stack.cards = [];
       for (let cardType of Object.values(this.game.gameType.cards!)) {
-        for (let i=0; i < n; i++) {
-          const card = {cardType: cardType, id: this.game.createHash()};
-          stack.cards.push(card);
-          if (!this.game.skipMode) animations.push({fromId: null, toId: card.id, targetId: card.id, type: 'fly', duration: 100, next: 10});
+        for (let i = 0; i < n; i++) {
+          const card = { cardType: cardType, id: this.game.createHash() };
+          _stack.cards.push(card);
         }
       }
-      if (!this.game.skipMode) {
-        const gs: GameState = JSON.parse(JSON.stringify(this.game.gameState));
-        gs.animations = animations;
-        this.game.nextGameStates.push(gs);
-      }
-      return of(true);
-    }));
+    });
   }
 
-  shuffleStack(stack: Observable<CardStack>): Observable<FunctionResult> {
-    return stack.pipe(switchMap((stack) => {
-      const animations: Animation[] = [];
-      for (let i = stack.cards.length - 1; i > 0; i--) {
+  shuffleStack(stack: MCall<CardStack>): MCall<FunctionResult> {
+    return stack.then(async _stack => {
+      for (let i = _stack.cards.length - 1; i > 0; i--) {
         const j = Math.floor(this.game.random() * (i + 1));
-        [stack.cards[i], stack.cards[j]] = [stack.cards[j], stack.cards[i]];
-        if (!this.game.skipMode) {
-          animations.push({fromId: stack.cards[j].id, toId: null, targetId: stack.cards[j].id, type: 'shuffle', duration: 100, next: 1});
-          animations.push({fromId: stack.cards[j].id, toId: null, targetId: stack.cards[i].id, type: 'shuffle', duration: 100, next: 1});
-        }
+        [_stack.cards[i], _stack.cards[j]] = [_stack.cards[j], _stack.cards[i]];
       }
-      if (!this.game.skipMode) {
-        const gs: GameState = JSON.parse(JSON.stringify(this.game.gameState));
-        gs.animations = animations;
-        this.game.nextGameStates.push(gs);
-      }
-      return of(true);
-    }));
+    });
   }
 
-  cardType(typeName: Observable<string>, card: Observable<Card>): Observable<string> {
-    return combineLatest([typeName, card]).pipe(
-      switchMap(([typeKey, card]) => {
-        return of(card.cardType.types[typeKey]);
-      }),
-    );
+  cardType(typeName: MCall<string>, card: MCall<Card>): MCall<string> {
+    return MCall.all<[string, Card]>([typeName, card]).then(async ([t, c]) => c.cardType.types[t]);
   }
 
-  addCardStackTargets(options: Observable<GameOption[]>, targets: Observable<CardStack[]>): Observable<GameOption[]> {
-    return combineLatest([options, targets]).pipe(switchMap(([options, targets]) => {
-      for (let option of options) {
+  addCardStackTargets(options: MCall<GameOption[]>, targets: MCall<CardStack[]>): MCall<GameOption[]> {
+    return MCall.all<[GameOption[], CardStack[]]>([options, targets]).then(async ([_options, _targets]) => {
+      for (let option of _options) {
         if (!option.cardTargets) option.cardTargets = [];
-        option.cardTargets.push(...targets);
+        option.cardTargets.push(..._targets);
       }
-      return of(options);
-    }));
+      return _options;
+    });
   }
 
-  emptyOptions(): Observable<GameOption[]> {
-    return of([]);
+  emptyOptions(): MCall<GameOption[]> {
+    return this.of([]);
   }
 
-  textOption(text: Observable<string>, action: Observable<() => Observable<FunctionResult>>): Observable<GameOption> {
-    return text.pipe(
-      switchMap((text) => of({text: text, action: action.pipe(switchMap((action) => action()))})),
-    );
+  textOption(text: MCall<string>, action: MCall<() => MCall<FunctionResult>>): MCall<GameOption> {
+    return MCall.all<[string, () => MCall<FunctionResult>]>([text, action]).then(async ([text, action]) => ({text, action: action()}));
   }
 
-  cardOptions(cards: Observable<Card[]>, filter: Observable<(cards: Observable<Card[]>) => Observable<boolean>>, action: Observable<(cards: Observable<Card[]>) => Observable<FunctionResult>>): Observable<GameOption[]> {
-    return combineLatest([cards, filter]).pipe(
-      switchMap(([cards, filter]) => {
-        return combineLatest(cards.map(card => filter(of([card])).pipe(map((filter) => ({card, filter}))))).pipe(
-          switchMap((values) => {
-            return of(values.filter((v) => v.filter).map((v) => ({card: v.card, action: action.pipe(switchMap((action) => action(of([v.card]))))})));
-          }),
-        );
-      }),
-    );
+  cardOptions(cards: MCall<Card[]>, action: MCall<(cards: MCall<Card[]>) => MCall<FunctionResult>>): MCall<GameOption[]> {
+    return cards.then(async c => c.map((card) => ({ card, action })));
   }
 
-  choose(player: Observable<Player>, options: Observable<GameOption[]>, onEmpty: Observable<GameOption> | undefined): Observable<FunctionResult> {
-    if (onEmpty === undefined) onEmpty = of({text: 'Pass', action: of(false)});
-    return combineLatest([player, options]).pipe(switchMap(([player, options]) => {
-      return this.game.controllers[player.id].choose(this.game.gameState!, this.game.nextGameStates, of(options), onEmpty!).pipe(switchMap((option) => {
-        if (option.action === undefined) return of(false);
-        return option.action;
-      }));
-    }));
+  choose(player: MCall<Player>, options: MCall<GameOption[]>, onEmpty: MCall<GameOption> | undefined): MCall<FunctionResult> {
+    if (onEmpty === undefined) onEmpty = this.of<GameOption>({ text: 'Pass', action: this.of(false) });
+    return MCall.all<[Player, GameOption[], GameOption]>([player, options, onEmpty]).switch(async ([_player, _options, _onEmpty]) => {
+      return new MCall(async () => await this.game.controllers[_player.id].choose(this.game.gameState!, _options, _onEmpty)).switch<any>(async r => {
+        if (r.action === undefined) return this.of(false);
+        return r.action;
+      });
+    });
   }
 
-  isEmpty<T>(array: Observable<T[]>): Observable<boolean> {
-    return array.pipe(switchMap((a) => of(a.length === 0)));
+  isEmpty<T>(array: MCall<T[]>): MCall<boolean> {
+    return this.equals(this.length(array), this.of(0));
   }
 
-  endGame(end: Observable<boolean>): Observable<FunctionResult> {
-    return end.pipe(switchMap((end) => {
-      this.game.gameState!.ended = end;
-      return of(end);
-    }));
+  endGame(end: MCall<boolean>): MCall<FunctionResult> {
+    return end.then(async e => this.game.gameState!.ended = e);
   }
 
-  map<T, T2>(array: Observable<T[]>, func: Observable<(o: Observable<T>) => Observable<T2>>): Observable<T2[]> {
-    return combineLatest([array, func]).pipe(switchMap(([a, f]) => combineLatest(a.map((x) => f(of(x))))));
+  filter<T>(array: MCall<T[]>, filter: MCall<(con: MCall<T>) => MCall<boolean>>): MCall<T[]> {
+    return MCall.all<[T[], (_: MCall<T>) => MCall<boolean>]>([array, filter]).then(async ([a, f]) => a.filter((x) => f(this.of(x))));
   }
 
-  length<T>(array: Observable<T[]>): Observable<number> {
-    return array.pipe(switchMap((a) => of(a.length)));
+  map<T, T2>(array: MCall<T[]>, func: MCall<(x: MCall<T>) => MCall<T2>>): MCall<T2[]> {
+    return MCall.all<[T[], (_: MCall<T>) => MCall<T2>]>([array, func]).switch(async ([a, f]) => <any>MCall.all(a.map((x) => f(this.of(x)))));
   }
 
-  slice<T>(array: Observable<T[]>, start: Observable<number> | undefined, end: Observable<number> | undefined): Observable<T[]> {
-    let startO: Observable<number | undefined>;
-    if (start === undefined) startO = of(undefined);
+  length<T>(array: MCall<T[]>): MCall<number> {
+    return array.then(async x => x.length);
+  }
+
+  slice<T>(array: MCall<T[]>, start: MCall<number> | undefined, end: MCall<number> | undefined): MCall<T[]> {
+    let startO: MCall<number | undefined>;
+    if (start === undefined) startO = this.of(undefined);
     else startO = start;
-    let endO: Observable<number | undefined>;
-    if (end === undefined) endO = of(undefined);
+    let endO: MCall<number | undefined>;
+    if (end === undefined) endO = this.of(undefined);
     else endO = end;
-    return combineLatest([array, startO, endO]).pipe(switchMap(([array, startO, endO]) => of(array.slice(startO, endO))));
+    return MCall.all<[T[], number, number]>([array, startO, endO]).then(async ([a, x, y]) => a.slice(x, y));
   }
 
-  first<T>(array: Observable<T[]>): Observable<T> {
-    return array.pipe(switchMap((v) => of(v[0])));
+  first<T>(array: MCall<T[]>): MCall<T> {
+    return array.then(async a => a[0]);
   }
 
-  add<T>(...summand: Observable<T>[]): Observable<T> {
-    return combineLatest(summand).pipe(
-      switchMap((v: any[]) => {
-        let c = v[0];
-        for (let i=1; i<v.length; i++) {
-          c += v[i];
+  add<T>(...summand: MCall<T>[]): MCall<T> {
+    return MCall.all<T[]>(summand).then(async x => x.reduce((a, b) => <any>a + b));
+  }
+
+  max<T>(...value: MCall<T>[]): MCall<T> {
+    return MCall.all<T[]>(value).then(async x => x.reduce((a, b) => a > b ? a : b));
+
+  }
+
+  min<T>(...value: MCall<T>[]): MCall<T> {
+    return MCall.all<T[]>(value).then(async x => x.reduce((a, b) => a < b ? a : b));
+
+  }
+
+  equals<T>(...value: MCall<T>[]): MCall<boolean> {
+    return MCall.all<T[]>(value).then(async x => {
+        for (let i=1; i<x.length; i++) {
+          if (x[i-1] != x[i]) return false;
         }
-        return of(c);
-      })
-    );
+        return true;
+    });
   }
 
-  max<T>(...value: Observable<T>[]): Observable<T> {
-    return combineLatest(value).pipe(
-      switchMap((v: any[]) => {
-        let c = v[0];
-        for (let i=1; i<v.length; i++) {
-          if (v[i] > c) c = v[i];
-        }
-        return of(c);
-      })
-    );
+  lessEquals<T>(...value: MCall<T>[]): MCall<boolean> {
+    return MCall.all<T[]>(value).then(async x => {
+      for (let i=1; i<x.length; i++) {
+        if (x[i-1] > x[i]) return false;
+      }
+      return true;
+    });
   }
 
-  min<T>(...value: Observable<T>[]): Observable<T> {
-    return combineLatest(value).pipe(
-      switchMap((v: any[]) => {
-        let c = v[0];
-        for (let i=1; i<v.length; i++) {
-          if (v[i] < c) c = v[i];
-        }
-        return of(c);
-      })
-    );
+  or<T>(...value: MCall<T>[]): MCall<boolean> {
+    return MCall.all<T[]>(value).then(async x => {
+      for (let v of x) {
+        if (v) return true;
+      }
+      return false;
+    });
   }
 
-  equals<T>(...value: Observable<T>[]): Observable<boolean> {
-    return combineLatest(value).pipe(
-      switchMap((v: any[]) => {
-        let c = v[0];
-        for (let i=1; i<v.length; i++) {
-          if (c != v[i]) return of(false);
-        }
-        return of(true);
-      })
-    );
+  and<T>(...value: MCall<T>[]): MCall<boolean> {
+    return MCall.all<T[]>(value).then(async x => {
+      for (let v of x) {
+        if (!v) return false;
+      }
+      return true;
+    });
   }
 
-  lessEquals<T>(...value: Observable<T>[]): Observable<boolean> {
-    return combineLatest(value).pipe(
-      switchMap((v: any[]) => {
-        for (let i=1; i<v.length; i++) {
-          if (v[i-1] > v[i]) return of(false);
-        }
-        return of(true);
-      })
-    );
+  concat<T>(...array: MCall<T[]>[]): MCall<T[]> {
+    return MCall.all<T[]>(array).then(async x => (<T[]>[]).concat(...x));
   }
 
-  or(...value: Observable<boolean>[]): Observable<boolean> {
-    return combineLatest(value).pipe(
-      switchMap((v: boolean[]) => {
-        return of(v.find((b) => b) !== undefined);
-      })
-    );
+  iff<T>(condition: MCall<boolean>, yes: MCall<T>, no: MCall<T>): MCall<T> {
+    if (no === undefined) no = this.of(<any>true);
+    return condition.switch(<any>(async (x: any) => (x ? yes : no)));
   }
 
-  and(...value: Observable<boolean>[]): Observable<boolean> {
-    return combineLatest(value).pipe(
-      switchMap((v: boolean[]) => {
-        return of(v.find((b) => !b) === undefined);
-      })
-    );
-  }
-
-  concat<T>(...array: Observable<T[]>[]): Observable<T[]> {
-    return combineLatest(array).pipe(
-      switchMap((v: any[]) => of([].concat.apply([], v))),
-    );
-  }
-
-  if<T>(condition: Observable<boolean>, yes: Observable<T>, no: Observable<T> | undefined=undefined): Observable<T> {
-    return condition.pipe(switchMap((b) => {
-      if (b) return yes;
-      if (no !== undefined) return no;
-      return of(<any>false);
-    }));
-  }
-
-  ToArray<T>(...value: Observable<T>[]): Observable<T[]> {
-    if (value.length == 1) return value[0].pipe(map((x)=>[x]));
-    return value[0].pipe(
-      concatMap((v) => this.ToArray(...value.slice(1)).pipe(map((x) => [v, ...x])),
-    ));
-  }
-
-  sequential(...func: Observable<FunctionResult>[]): Observable<FunctionResult> {
-    if (func.length == 1) return func[0];
-    return func[0].pipe(
-      concatMap((v) => this.sequential(...func.slice(1)),
-    ));
+  sequential(...func: MCall<FunctionResult>[]): MCall<FunctionResult> {
+    return MCall.all(func);
   }
 }

@@ -9,7 +9,8 @@ import { RoomState } from './room-state';
 import { User } from './user';
 import { RoomStatePacket as RoomStatePacket } from '../packets/room-state.packet';
 import { PingPacket } from '../packets/ping.packet';
-import { GamesService } from '../games/games.service';
+import { GameLoaderService } from '../games/games-loader.service';
+import { KeyValue } from '@angular/common';
 
 @Injectable()
 export class RoomService {
@@ -24,7 +25,7 @@ export class RoomService {
   private pingTimeout = 3000;
 
   constructor(
-    private gamesService: GamesService,
+    private gamesService: GameLoaderService,
   ) {
     interval(this.pingInterval).subscribe(() => {
       this.pingConnections();
@@ -134,7 +135,7 @@ export class RoomService {
   }
 
   createRoom(username: string): Observable<string> {
-    return this.gamesService.getGameTypes().pipe(
+    return this.gamesService.getGames().pipe(
       switchMap((gameTypes) => {
         this.peer = new Peer();
         return fromEvent(this.peer, 'open').pipe(
@@ -146,7 +147,7 @@ export class RoomService {
             this.roomState.next({
               users: {[this.id]: this.me},
               id: this.id,
-              selectedGame: gameTypes[Object.keys(gameTypes)[0]],
+              selectedGame: Object.entries(gameTypes)[0],
               state: 'lobby',
             });
             fromEvent(this.peer, 'connection').subscribe((conn) => this.setupHostConnection(<DataConnection>conn));

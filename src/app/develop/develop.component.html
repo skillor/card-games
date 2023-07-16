@@ -1,0 +1,59 @@
+<div class="min-h-screen flex flex-col">
+  <div class="flex flex-col">
+    <div class="navbar bg-neutral-focus">
+      <div class="navbar-start">
+        <div class="dropdown">
+          <label tabindex="0" class="btn btn-ghost lg:hidden">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
+              stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h8m-8 6h16" />
+            </svg>
+          </label>
+          <ul tabindex="0" class="menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow bg-base-100 rounded-box w-52">
+            <li *ngFor="let route of navbarRoutes"><a [routerLink]="route.link" routerLinkActive="active">{{route.title}}</a></li>
+          </ul>
+        </div>
+        <div class="dropdown">
+          <label tabindex="0" class="btn normal-case text-xl m-1">File</label>
+          <span *ngIf="developService.gameType" class="text-lg m-1">{{developService.gameType.name}}</span>
+          <ul tabindex="0" class="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-52">
+            <div class="join join-vertical">
+              <li><button class="btn content-center btn-sm join-item font-bold" (click)="newGame()">New</button></li>
+              <li><button class="btn content-center btn-sm join-item font-bold" (click)="loadFile()">Load</button></li>
+            </div>
+            <div class="divider m-0"></div>
+            <div class="join join-vertical">
+              <li *ngFor="let game of getGames$ | async | keyvalue">
+                <button class="btn content-center btn-sm join-item" (click)="loadPre(game.key)">{{game.value}}</button>
+              </li>
+            </div>
+          </ul>
+        </div>
+      </div>
+      <div class="navbar-center hidden lg:flex">
+        <ul class="menu menu-horizontal px-1 gap-1">
+          <li *ngFor="let route of navbarRoutes"><a [routerLink]="route.link" routerLinkActive="active">{{route.title}}</a></li>
+        </ul>
+      </div>
+      <div class="navbar-end gap-1">
+        <button class="btn" *ngIf="developService.gameType" (click)="developService.saveToLocal()">Save</button>
+        <button class="btn" *ngIf="developService.gameType" (click)="developService.saveToFile()">Download</button>
+      </div>
+    </div>
+    <progress *ngIf="progress !== undefined" class="progress progress-primary" [value]="progress | number: '1.0-0'"
+      max="100"></progress>
+  </div>
+  <div class="flex grow">
+    <router-outlet *ngIf="developService.gameType"></router-outlet>
+    <div class="w-full h-auto" *ngIf="!developService.gameType">Press File to load a game...</div>
+  </div>
+</div>
+<dialog *ngIf="developService.errorMsg" class="modal modal-open">
+  <form method="dialog" class="modal-box">
+    <h3 class="font-bold text-lg">Error</h3>
+    <p class="py-4">{{developService.errorMsg}}</p>
+  </form>
+  <form method="dialog" class="modal-backdrop">
+    <button (click)="developService.errorMsg = ''">close</button>
+  </form>
+</dialog>

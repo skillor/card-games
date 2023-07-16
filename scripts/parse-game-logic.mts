@@ -5,16 +5,17 @@ import * as fs from 'fs';
 
 
 class Parser {
+  ignoreFunctions = ['of'];
   code: string = '';
   result: GameLogicHead = {
     types: [],
-    functions: [],
+    functions: {},
   };
 
   reset(): void {
     this.result = {
       types: [],
-      functions: [],
+      functions: {},
     };
   }
 
@@ -78,14 +79,17 @@ class Parser {
   }
 
   getFunction(member: any, typeParameters: string[]): FunctionHead | undefined {
-    if (member.type.typeName.escapedText != 'Observable') {
-      console.warn('unknown type, skipping...', member);
+    let name: string = member.name ? member.name.escapedText : '';
+
+    if (this.ignoreFunctions.includes(name)) return undefined;
+
+    if (member.type.typeName.escapedText != 'Promise') {
+      console.warn(`unknown type in function ${name}, skipping...`);
       return undefined;
     }
     if (member.typeParameters) {
       typeParameters = member.typeParameters.map((x: any) => x.name.escapedText);
     }
-    let name: string = member.name ? member.name.escapedText : '';
     let outputType: TypingHead = {options: this.getOptionsByToken(member.type.typeArguments[0], typeParameters)};
 
     let inputs: FunctionInputHead[] = [];
@@ -111,8 +115,8 @@ class Parser {
         dotdot = true;
       }
       if (type) {
-        if (type.typeName.escapedText !== 'Observable') {
-          console.warn('unknown type, skipping...', member);
+        if (type.typeName.escapedText !== 'Promise') {
+          console.warn(`unknown type in function ${name}, skipping...`);
           return undefined;
         }
         inputs.push({
@@ -144,7 +148,8 @@ class Parser {
   }
 
   addFunction(f: FunctionHead): void {
-    this.result.functions.push(f);
+    if (f.name in this.result.functions) console.error(`function name collision "${f.name}"`);
+    this.result.functions[f.name] = f;
   }
 
   recAddType(type: TypingOption, ignore: string[]): void {
